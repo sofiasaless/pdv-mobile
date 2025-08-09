@@ -1,15 +1,19 @@
 const icone = require("../public/icone-logo.png");
 import {
   Button,
+  CheckBox,
+  Divider,
   Text,
   useTheme,
 } from "@ui-kitten/components";
 import {
+  FlatList,
   StyleSheet,
   View,
 } from "react-native";
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { Mesa } from "../components/Mesa";
+import { QuantidadeInfo } from "../components/QuantidadeInfo";
 
 export default function Inicio() {
   const theme = useTheme();
@@ -41,16 +45,47 @@ export default function Inicio() {
 
         {/* renderização das mesas */}
         <View style={[styles.conteudoDois, { backgroundColor: theme['color-primary-100'] }]}>
-          <View style={styles.mesaContainer}>
-            <Mesa status="disponivel"/>
-            <Mesa status="ocupada"/>
-            <Mesa status="ocupada"/>
-            <Mesa status="aguardando"/>
-            <Mesa status="disponivel"/>
-            <Mesa status="disponivel"/>
-            <Mesa status="disponivel"/>
-            <Mesa status="aguardando"/>
+          <View style={styles.infosMesa}>
+            <QuantidadeInfo tema="primary" descricao="livres" quantidade={20} />
+            <QuantidadeInfo tema="success" descricao="ocupadas" quantidade={2} />
+            <QuantidadeInfo tema="danger" descricao="aguardando" quantidade={3} />
           </View>
+
+          <Divider />
+
+          <View style={styles.filtragem}>
+            <CheckBox status='primary'>Livres</CheckBox>
+            <CheckBox status='success'>Ocupadas</CheckBox>
+            <CheckBox status='danger'>Aguardando</CheckBox>
+          </View>
+
+          <FlatList
+            data={mesas}
+            keyExtractor={(item) => item.id}
+            renderItem={({ item }) => <Mesa status={item.status as 'ocupada' | 'disponivel' | 'aguardando'} />}
+            numColumns={3} // Quantas mesas por linha
+            columnWrapperStyle={{
+              gap: 10,
+              justifyContent: "flex-start",
+            }}
+            contentContainerStyle={{
+              gap: 10,
+              paddingBottom: 20
+            }}
+            showsVerticalScrollIndicator={false}
+          />
+
+
+          {/* <View style={styles.mesaContainer}>
+            <Mesa status="disponivel" />
+            <Mesa status="ocupada" />
+            <Mesa status="ocupada" />
+            <Mesa status="aguardando" />
+            <Mesa status="disponivel" />
+            <Mesa status="disponivel" />
+            <Mesa status="disponivel" />
+            <Mesa status="aguardando" />
+          </View> */}
         </View>
 
       </View>
@@ -80,9 +115,25 @@ const styles = StyleSheet.create({
     borderTopStartRadius: 35,
     paddingHorizontal: '8%',
     paddingVertical: '8%',
+    gap: '3%'
   },
   text: {
     textAlign: 'left'
+  },
+  filtragem: {
+    flexDirection: 'row',
+    // backgroundColor: 'grey',
+    alignItems: 'center',
+    alignContent: 'center',
+    justifyContent: 'center'
+  },
+  infosMesa: {
+    flexDirection: 'row',
+    // backgroundColor: 'grey',
+    alignItems: 'center',
+    alignContent: 'center',
+    justifyContent: 'center',
+    gap: 10
   },
   mesaContainer: {
     gap: 10,
@@ -91,3 +142,23 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   }
 });
+
+
+const mesas = [
+  { id: "1", status: "disponivel" },
+  { id: "2", status: "ocupada" },
+  { id: "3", status: "ocupada" },
+  { id: "4", status: "aguardando" },
+  { id: "5", status: "disponivel" },
+  { id: "6", status: "disponivel" },
+  { id: "7", status: "disponivel" },
+  { id: "8", status: "aguardando" },
+  { id: "9", status: "disponivel" },
+  { id: "10", status: "ocupada" },
+  { id: "11", status: "ocupada" },
+  { id: "12", status: "aguardando" },
+  { id: "13", status: "disponivel" },
+  { id: "14", status: "disponivel" },
+  { id: "15", status: "disponivel" },
+  { id: "16", status: "aguardando" },
+];
