@@ -1,3 +1,4 @@
+const icone = require("../public/icone-logo.png");
 import {
   IndexPath,
   Select,
@@ -5,9 +6,11 @@ import {
   Text,
   useTheme,
   Input,
-  Button
+  Button,
+  Card,
+  Modal
 } from "@ui-kitten/components";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   StyleSheet,
   View,
@@ -15,7 +18,8 @@ import {
   KeyboardAvoidingView,
   ScrollView,
   Keyboard,
-  TouchableWithoutFeedback
+  TouchableWithoutFeedback,
+  Image
 } from "react-native";
 
 export default function Login() {
@@ -25,59 +29,108 @@ export default function Login() {
   const [selectedIndex, setSelectedIndex] = useState<IndexPath>(new IndexPath(0));
   const [value, setValue] = useState('');
 
+  // para o modal
+  const [visibleModal, setVisibleModal] = useState(false);
+
   return (
-    <KeyboardAvoidingView
-      style={[styles.container, { backgroundColor: theme['color-primary-900'] }]}
-      behavior={Platform.OS == 'ios' ? 'padding' : 'height'}
-      keyboardVerticalOffset={20}
-    >
-      {/* <View style={[styles.container, { backgroundColor: theme['color-primary-900'] }]}> */}
+    <>
+      <KeyboardAvoidingView
+        style={[styles.container, { backgroundColor: theme['color-primary-800'] }]}
+        behavior={Platform.OS == 'ios' ? 'padding' : 'height'}
+        keyboardVerticalOffset={20}
+      >
+        <View style={styles.conteudoUm}>
+          <Image
+            style={{ width: 150, height: 150 }}
+            source={icone}
+          />
 
-      <View style={styles.conteudoUm}>
-        <Text style={[styles.text, { color: theme['color-primary-200'] }]} category='h2'>
-          Bem-vindo ao Up! PDV
-        </Text>
-        <Text style={[styles.text, { color: theme['color-primary-200'] }]} category='caption'>
-          Insira suas credenciais para prosseguir.
-        </Text>
-      </View>
+          <Text style={[styles.text, { color: theme['color-primary-200'] }]} category='h2'>
+            Bem-vindo ao Up! PDV
+          </Text>
+          <Text style={[styles.text, { color: theme['color-primary-200'] }]} category='caption'>
+            Insira suas credenciais para prosseguir.
+          </Text>
+        </View>
 
-      <View style={[styles.conteudoDois, { backgroundColor: theme['color-primary-100'] }]}>
-        <Select
-          status="primary"
-          label='Operador'
-          selectedIndex={selectedIndex}
-          value={operadores[selectedIndex.row]}
-          onSelect={(index: IndexPath | IndexPath[]) => {
-            if (Array.isArray(index)) {
-              setSelectedIndex(index[0]);
-            } else {
-              setSelectedIndex(index);
-            }
-          }}
-        >
-          {operadores.map((op, i) => (
-            <SelectItem key={i} title={op} />
-          ))}
-        </Select>
+        <View style={[styles.conteudoDois, { backgroundColor: 'white' }]}>
+          <Select
+            status="primary"
+            label='Operador'
+            selectedIndex={selectedIndex}
+            value={operadores[selectedIndex.row]}
+            onSelect={(index: IndexPath | IndexPath[]) => {
+              if (Array.isArray(index)) {
+                setSelectedIndex(index[0]);
+              } else {
+                setSelectedIndex(index);
+              }
+            }}
+          >
+            {operadores.map((op, i) => (
+              <SelectItem key={i} title={op} />
+            ))}
+          </Select>
 
-        <Input
-          label='Senha'
-          placeholder='Insira a senha do operador'
-          status="primary"
-          value={value}
-          onChangeText={setValue}
-        />
+          <Input
+            label='Senha'
+            placeholder='Insira a senha do operador'
+            status="primary"
+            value={value}
+            onChangeText={setValue}
+          />
 
-        <Button status="primary" size="medium">
-          Entrar
-        </Button>
-      </View>
+          <Button status="primary" size="medium" onPress={() => setVisibleModal(true)}>
+            Entrar
+          </Button>
+        </View>
+      </KeyboardAvoidingView>
 
-      {/* </View> */}
-    </KeyboardAvoidingView>
+      <ModalAlerta 
+        visivel={visibleModal} 
+        fechar={() => setVisibleModal(false)} 
+        acao="ERRO"
+      />
+    </>
   );
 }
+
+interface ModalAlertaProps {
+  visivel: boolean;
+  fechar: () => void;
+  acao: 'SUCEDIDO' | 'ERRO'
+}
+
+export const ModalAlerta: React.FC<ModalAlertaProps> = ({ visivel, fechar, acao }) => {
+
+  return (
+    <Modal
+      visible={visivel}
+      backdropStyle={styles.backdrop}
+      onBackdropPress={fechar}
+    >
+      <Card disabled={true}>
+        <Text>
+          {
+            (acao === 'SUCEDIDO')?
+            'Login efetuado com sucesso!'
+            :
+            'Ocorreu um erro, por favor tente novamente!'
+          }
+        </Text>
+        <Button status={(acao === 'SUCEDIDO')?'success':'danger'} appearance="outline" onPress={fechar}>
+          {
+            (acao === 'SUCEDIDO')?
+            'Prosseguir'
+            :
+            'Tentar novamente'
+          }
+        </Button>
+      </Card>
+    </Modal>
+  );
+};
+
 
 const styles = StyleSheet.create({
   container: {
@@ -88,6 +141,8 @@ const styles = StyleSheet.create({
   conteudoUm: {
     height: '60%',
     justifyContent: 'center',
+    alignContent: 'center',
+    alignItems: 'center',
     paddingHorizontal: '8%'
   },
   conteudoDois: {
@@ -95,11 +150,17 @@ const styles = StyleSheet.create({
     borderTopEndRadius: 35,
     borderTopStartRadius: 35,
     paddingHorizontal: '8%',
-    paddingVertical: '8%',
+    // paddingVertical: '8%',
     gap: 20,
     justifyContent: 'center'
   },
   text: {
     textAlign: 'center'
-  }
+  },
+  containerModal: {
+    minHeight: 192,
+  },
+  backdrop: {
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
 });
