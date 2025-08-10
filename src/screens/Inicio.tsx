@@ -63,7 +63,7 @@ export default function Inicio() {
             data={mesas}
             keyExtractor={(item) => item.id}
             renderItem={({ item }) => <Mesa status={item.status as 'ocupada' | 'disponivel' | 'aguardando'} />}
-            numColumns={3} // Quantas mesas por linha
+            numColumns={2}
             columnWrapperStyle={{
               gap: 10,
               justifyContent: "flex-start",
@@ -75,17 +75,6 @@ export default function Inicio() {
             showsVerticalScrollIndicator={false}
           />
 
-
-          {/* <View style={styles.mesaContainer}>
-            <Mesa status="disponivel" />
-            <Mesa status="ocupada" />
-            <Mesa status="ocupada" />
-            <Mesa status="aguardando" />
-            <Mesa status="disponivel" />
-            <Mesa status="disponivel" />
-            <Mesa status="disponivel" />
-            <Mesa status="aguardando" />
-          </View> */}
         </View>
 
       </View>
@@ -115,7 +104,7 @@ const styles = StyleSheet.create({
     borderTopStartRadius: 35,
     paddingHorizontal: '8%',
     paddingVertical: '8%',
-    gap: '3%'
+    gap: '2%'
   },
   text: {
     textAlign: 'left'

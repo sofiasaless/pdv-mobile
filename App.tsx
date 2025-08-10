@@ -4,11 +4,15 @@ import { StyleSheet, Text, View } from 'react-native';
 import * as eva from '@eva-design/eva';
 import Login from './src/screens/Login';
 import Inicio from './src/screens/Inicio';
+import { Comanda } from './src/screens/Comanda';
+import { ComandaAguardando } from './src/screens/ComandaAguardando';
 
 export default function App() {
   return (
     <ApplicationProvider {...eva} theme={eva.light}>
-      <Inicio />
+      <ComandaAguardando />
+      {/* <Comanda /> */}
+      {/* <Inicio /> */}
       {/* <Login /> */}
       <StatusBar style="light" />
     </ApplicationProvider>
