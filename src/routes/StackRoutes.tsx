@@ -8,7 +8,7 @@ import { Cardapio } from '../screens/Cardapio';
 enableScreens();
 
 export type RootStackParamList = {
-  Comanda: undefined;
+  Comanda: { idMesa: string | undefined };
   Cardapio: undefined;
 };
 

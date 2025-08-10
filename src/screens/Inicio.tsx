@@ -12,11 +12,28 @@ import {
   View,
 } from "react-native";
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
-import { Mesa } from "../components/Mesa";
+import { CardMesa } from "../components/CardMesa";
 import { QuantidadeInfo } from "../components/QuantidadeInfo";
+import { useEffect, useState } from "react";
+import { Mesa, StatusMesa } from "../types/mesa.type";
+import { mesaFirestore } from "../firestore/mesa.firestore";
 
 export default function Inicio() {
   const theme = useTheme();
+
+  const [mesas, setMesas] = useState<Mesa[]>([])
+
+  async function carregarMesas() {
+    await mesaFirestore.recuperarMesas().then((dados) => {
+      if (dados != undefined) {
+        setMesas(dados)
+      }
+    })
+  }
+
+  useEffect(() => {
+    carregarMesas()
+  }, [])
 
   return (
     <>
@@ -61,8 +78,8 @@ export default function Inicio() {
 
           <FlatList
             data={mesas}
-            keyExtractor={(item) => item.id}
-            renderItem={({ item }) => <Mesa status={item.status as 'ocupada' | 'disponivel' | 'aguardando'} />}
+            // keyExtractor={Math.random()}
+            renderItem={({ item }) => <CardMesa numeracao={item.numeracao} pedidos={[]} id_mesa={item.id_mesa} status={item.status as StatusMesa} />}
             numColumns={2}
             columnWrapperStyle={{
               gap: 10,
