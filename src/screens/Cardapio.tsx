@@ -31,9 +31,9 @@ export const Cardapio = () => {
         style={[styles.container, { backgroundColor: theme['color-primary-800'] }]}
       >
 
-        <View style={styles.conteudoUm}>
+        {/* <View style={styles.conteudoUm}>
 
-        </View>
+        </View> */}
 
         {/* renderização das mesas */}
         <View style={[styles.conteudoDois, { backgroundColor: theme['color-primary-100'] }]}>
@@ -132,7 +132,7 @@ const styles = StyleSheet.create({
     gap: '5%'
   },
   conteudoDois: {
-    height: '90%',
+    height: '100%',
     borderTopEndRadius: 35,
     borderTopStartRadius: 35,
     // paddingHorizontal: '8%',

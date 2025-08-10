@@ -16,9 +16,13 @@ import AntDesign from '@expo/vector-icons/AntDesign';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { ItemComanda, ItemComandaProps } from "../components/ItemComanda";
+import { NavigationProp, useNavigation } from "@react-navigation/native";
+import { RootStackParamList } from "../routes/StackRoutes";
 
 export const Comanda = () => {
   const theme = useTheme();
+
+  const navigator = useNavigation<NavigationProp<RootStackParamList>>();
 
   return (
     <>
@@ -50,6 +54,9 @@ export const Comanda = () => {
               appearance="outline"
               size="small"
               accessoryRight={<AntDesign name="plus" size={15} color="#DB8B00" />}
+              onPress={() => {
+                navigator.navigate('Cardapio')
+              }}
             >Selecionar produto do cardápio</Button>
           </View>
 

@@ -1,5 +1,6 @@
 import { Card, Layout, Text, useTheme } from "@ui-kitten/components";
 import React, { useEffect, useState } from "react";
+import { View } from "react-native";
 
 interface LabelInfoProps {
   tema: 'danger' | 'success' | 'primary',
@@ -27,7 +28,7 @@ export const LabelInfo: React.FC<LabelInfoProps> = ({ tema, descricao, tamanhoLe
   }, [tema])
 
   return (
-    <Layout
+    <View
       style={{
         borderRadius: 5,
         padding: 5,
@@ -39,6 +40,6 @@ export const LabelInfo: React.FC<LabelInfoProps> = ({ tema, descricao, tamanhoLe
           color: theme[textColor]
         }}
       >{descricao.toUpperCase()}</Text>
-    </Layout>
+    </View>
   );
 }

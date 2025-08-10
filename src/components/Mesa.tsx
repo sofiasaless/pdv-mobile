@@ -1,6 +1,8 @@
 import { Card, Layout, Text, useTheme } from "@ui-kitten/components"
 import { StyleSheet, View } from "react-native"
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
+import { useNavigation, NavigationProp } from "@react-navigation/native";
+import { RootStackParamList } from "../routes/StackRoutes";
 
 interface MesaProps {
   status: 'ocupada' | 'disponivel' | 'aguardando'
@@ -8,12 +10,16 @@ interface MesaProps {
 
 export const Mesa: React.FC<MesaProps> = ({ status }) => {
   const theme = useTheme();
+  const navigator = useNavigation<NavigationProp<RootStackParamList>>();
 
   return (
     <Card
       style={[styles.card, {
         backgroundColor: (status === 'disponivel') ? 'white' : (status === 'ocupada') ? theme['color-success-600'] : theme['color-danger-400']
       }]}
+      onPress={() => {
+        navigator.navigate('Comanda')
+      }}
     >
       <View style={styles.txtLabel}>
         {
