@@ -6,11 +6,13 @@ import Login from './src/screens/Login';
 import Inicio from './src/screens/Inicio';
 import { Comanda } from './src/screens/Comanda';
 import { ComandaAguardando } from './src/screens/ComandaAguardando';
+import { Cardapio } from './src/screens/Cardapio';
 
 export default function App() {
   return (
     <ApplicationProvider {...eva} theme={eva.light}>
-      <ComandaAguardando />
+      <Cardapio />
+      {/* <ComandaAguardando /> */}
       {/* <Comanda /> */}
       {/* <Inicio /> */}
       {/* <Login /> */}

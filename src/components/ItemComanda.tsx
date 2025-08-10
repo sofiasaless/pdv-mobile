@@ -13,7 +13,7 @@ export const ItemComanda: React.FC<ItemComandaProps> = ( { id, quantidade, descr
   return (
     <View style={[styles.container, { backgroundColor: (id % 2 === 0)? '#E4E9F2':'#C5CEE0'}]}>
       <CheckBox status='primary' />
-      <Text category="s2">{quantidade}</Text>
+      <Text category="s2">{quantidade} uni.</Text>
       <Text style={{flex: 1}} category="s2">{descricao}</Text>
       <Text category="s2">{horario}</Text>
       <Text category="label">R$ {(preco).toFixed(2)}</Text>
@@ -24,7 +24,7 @@ export const ItemComanda: React.FC<ItemComandaProps> = ( { id, quantidade, descr
 const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
-    paddingBlock: '3%',
+    paddingBlock: '7%',
     paddingInline: '3%',
     alignItems: 'center',
     gap: '3%',
