@@ -63,7 +63,7 @@ export const Comanda: React.FC<Props> = ({ route }) => {
             <Text style={[styles.text, { color: theme['color-primary-200'] }]} category='h4'>
               MESA {mesa?.numeracao}
             </Text>
-            <LabelInfo descricao={mesa?.status as StatusMesa ?? ""} tamanhoLetra="s2"/>
+            <LabelInfo descricao={mesa?.status as StatusMesa ?? ""} tamanhoLetra="s2" />
           </View>
 
           <View style={[styles.conteudoInternoDois, { backgroundColor: theme['color-warning-300'] }]}>
@@ -193,21 +193,3 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   }
 });
-
-// const itensComanda: ItemComandaProps[] = [
-//   { id: 1, quantidade: 2, descricao: "Café expresso", horario: "08:15", preco: 5.5 },
-//   { id: 2, quantidade: 1, descricao: "Pão de queijo", horario: "08:20", preco: 4.0 },
-//   { id: 3, quantidade: 3, descricao: "Suco de laranja", horario: "08:45", preco: 7.0 },
-//   { id: 4, quantidade: 1, descricao: "Bolo de chocolate", horario: "09:00", preco: 6.5 },
-//   { id: 5, quantidade: 2, descricao: "Cappuccino", horario: "09:10", preco: 8.0 },
-//   { id: 6, quantidade: 1, descricao: "Torrada com manteiga", horario: "09:15", preco: 3.5 },
-//   { id: 7, quantidade: 4, descricao: "Refrigerante lata", horario: "09:30", preco: 6.0 },
-//   { id: 8, quantidade: 2, descricao: "Sanduíche natural", horario: "09:45", preco: 9.5 },
-//   { id: 9, quantidade: 1, descricao: "Pastel de carne", horario: "10:00", preco: 5.0 },
-//   { id: 10, quantidade: 2, descricao: "Água mineral", horario: "10:05", preco: 3.0 },
-//   { id: 11, quantidade: 1, descricao: "Milk-shake de morango", horario: "10:20", preco: 12.0 },
-//   { id: 12, quantidade: 3, descricao: "Empada de frango", horario: "10:40", preco: 4.5 },
-//   { id: 13, quantidade: 2, descricao: "Chá gelado", horario: "10:50", preco: 6.0 },
-//   { id: 14, quantidade: 1, descricao: "Bauru", horario: "11:10", preco: 10.0 },
-//   { id: 15, quantidade: 1, descricao: "Cookie de chocolate", horario: "11:15", preco: 4.5 }
-// ];

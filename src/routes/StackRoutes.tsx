@@ -1,16 +1,20 @@
 import { createStackNavigator } from '@react-navigation/stack';
-const Stack = createStackNavigator();
+import { StackNavigationProp } from '@react-navigation/stack';
+import { RouteProp } from '@react-navigation/native';
+
+export type RootStackParamList = {
+  Home: undefined;
+  Comanda: { idMesa: string | undefined };
+  Cardapio: undefined;
+};
+
+const Stack = createStackNavigator<RootStackParamList>();
 
 import { enableScreens } from 'react-native-screens';
 import Inicio from '../screens/Inicio';
 import { Comanda } from '../screens/Comanda';
 import { Cardapio } from '../screens/Cardapio';
 enableScreens();
-
-export type RootStackParamList = {
-  Comanda: { idMesa: string | undefined };
-  Cardapio: undefined;
-};
 
 export default function StackRoutes() {
   return (

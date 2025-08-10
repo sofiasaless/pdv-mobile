@@ -35,6 +35,7 @@ export default function Inicio() {
     carregarMesas()
   }, [])
 
+
   return (
     <>
       <View
@@ -53,7 +54,8 @@ export default function Inicio() {
           </View>
 
           <View style={[styles.conteudoUmInterno]}>
-            <Button size="medium" style={{ padding: 0, justifyContent: 'center', alignItems: 'center' }}>
+            <Button size="medium" style={{ padding: 0, justifyContent: 'center', alignItems: 'center' }}
+            >
               <MaterialIcons name="settings" size={80} color="white" />
             </Button>
           </View>

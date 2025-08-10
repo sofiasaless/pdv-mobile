@@ -15,18 +15,19 @@ import {
   View,
 } from "react-native";
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { ItemComandaProps } from "../components/ItemComanda";
 import { ItemCardapio } from "../components/ItemCardapio";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { ItemConfirmacao } from "../components/ItemConfirmacao";
 import { Produto } from "../types/produto.type";
 import { cardapioFirestore } from "../firestore/cardapio.firestore";
+import { useItensPedido } from "../context/ItensPedidoContext";
 
 export const Cardapio = () => {
   const theme = useTheme();
 
   const [value, setValue] = useState<string>('');
   const [produtosCardapio, setProdutosCardapio] = useState<Produto[]>([]);
+  const [mostrarModal, setMostrarModal] = useState<boolean>(false)
 
   const carregarCardapio = async () => {
     await cardapioFirestore.recuperarCardapio().then((dados) => {
@@ -42,13 +43,14 @@ export const Cardapio = () => {
 
   return (
     <>
+
       <View
         style={[styles.container, { backgroundColor: theme['color-primary-800'] }]}
       >
 
         {/* <View style={styles.conteudoUm}>
 
-        </View> */}
+          </View> */}
 
         {/* renderização das mesas */}
         <View style={[styles.conteudoDois, { backgroundColor: theme['color-primary-100'] }]}>
@@ -66,7 +68,7 @@ export const Cardapio = () => {
           <View style={{ height: '70%' }}>
             <FlatList
               data={produtosCardapio}
-              renderItem={({ item }) => <ItemCardapio descricao={item.descricao} preco={item.preco} />}
+              renderItem={({ item }) => <ItemCardapio id_produto={item.id_produto} descricao={item.descricao} preco={item.preco} />}
               numColumns={1}
               contentContainerStyle={{
                 gap: 5,
@@ -78,12 +80,15 @@ export const Cardapio = () => {
             <Button
               appearance="outline"
               accessoryRight={<Ionicons name="receipt" size={20} color="#3366FF" />}
+              onPress={() => {
+                setMostrarModal(true)
+              }}
             >Adicionar ao pedido</Button>
           </View>
 
         </View>
 
-        <ModalConfirmacao selecionados={produtosCardapio} />
+        <ModalConfirmacao visible={mostrarModal} fechar={() => setMostrarModal(false)} />
 
       </View>
     </>
@@ -91,12 +96,13 @@ export const Cardapio = () => {
 }
 
 interface ModalConfirmacaoProps {
-  selecionados: Produto[]
+  visible: boolean,
+  fechar: () => void,
 }
 
-export const ModalConfirmacao: React.FC<ModalConfirmacaoProps> = ( { selecionados } ) => {
+const ModalConfirmacao: React.FC<ModalConfirmacaoProps> = ({ visible, fechar }) => {
 
-  const [visible, setVisible] = useState(true);
+  const { itensPedido } = useItensPedido()
 
   return (
     <View style={styles.containerModal}>
@@ -108,17 +114,17 @@ export const ModalConfirmacao: React.FC<ModalConfirmacaoProps> = ( { selecionado
         }}
         visible={visible}
         backdropStyle={styles.backdrop}
-        onBackdropPress={() => setVisible(false)}
+        onBackdropPress={fechar}
       >
         <Card style={styles.cardModal} disabled={true}>
           <Text style={{ textAlign: 'center' }} category="label">Revise os itens do pedido</Text>
-          
+
           <View style={{
             marginBlock: 10,
             height: '70%'
           }}>
             <FlatList
-              data={selecionados}
+              data={itensPedido}
               renderItem={({ item }) => <ItemConfirmacao descricao={item.descricao} preco={item.preco} />}
               numColumns={1}
               contentContainerStyle={{
@@ -126,7 +132,7 @@ export const ModalConfirmacao: React.FC<ModalConfirmacaoProps> = ( { selecionado
               }}
             />
           </View>
-          <Button onPress={() => setVisible(false)}>
+          <Button onPress={fechar}>
             Confirmar
           </Button>
         </Card>

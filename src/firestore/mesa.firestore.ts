@@ -1,4 +1,4 @@
-import { collection, doc, getDoc, getDocs, orderBy, query } from "firebase/firestore";
+import { addDoc, collection, doc, getDoc, getDocs, orderBy, query } from "firebase/firestore";
 import { firestore } from "../config/firebase.config";
 import { Mesa } from "../types/mesa.type";
 
@@ -43,6 +43,17 @@ export const mesaFirestore = {
     } catch (error) {
       console.log('ocorreu um erro ao buscar a mesa pelo id ', error)
     }
+  },
+
+  registrarMesa: async (mesa: Mesa) => {
+     try {
+      const docRef = await addDoc(collection(firestore, nomeColecao), mesa);
+      console.log("mesa criada com o id: ", docRef.id);
+      return docRef.id
+    } catch (e) {
+      console.log('erro ao adicionar uma mesa ', e)
+    }
+      
   }
 
 }
