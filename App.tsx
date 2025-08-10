@@ -7,12 +7,12 @@ import { ItensPedidoProvider } from './src/context/ItensPedidoContext';
 
 export default function App() {
   return (
-    <ItensPedidoProvider>
-      <ApplicationProvider {...eva} theme={eva.light}>
+    <ApplicationProvider {...eva} theme={eva.light}>
+      <ItensPedidoProvider>
         <Routes />
         <StatusBar style="light" />
-      </ApplicationProvider>
-    </ItensPedidoProvider>
+      </ItensPedidoProvider>
+    </ApplicationProvider>
   );
 }
 

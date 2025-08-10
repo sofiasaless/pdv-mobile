@@ -27,7 +27,11 @@ export const Cardapio = () => {
 
   const [value, setValue] = useState<string>('');
   const [produtosCardapio, setProdutosCardapio] = useState<Produto[]>([]);
+
   const [mostrarModal, setMostrarModal] = useState<boolean>(false)
+  const [mostrarModalObs, setMostrarModalObs] = useState(false);
+  const [itemSelecionado, setItemSelecionado] = useState<Produto | null>(null);
+
 
   const carregarCardapio = async () => {
     await cardapioFirestore.recuperarCardapio().then((dados) => {
@@ -67,12 +71,19 @@ export const Cardapio = () => {
 
           <View style={{ height: '70%' }}>
             <FlatList
+              keyExtractor={(item) => item.id_produto ?? item.descricao}
               data={produtosCardapio}
-              renderItem={({ item }) => <ItemCardapio id_produto={item.id_produto} descricao={item.descricao} preco={item.preco} />}
+              renderItem={({ item }) => (
+                <ItemCardapio
+                  objeto={item}
+                  abrirModalObs={(produto) => {
+                    setItemSelecionado(produto);
+                    setMostrarModalObs(true);
+                  }}
+                />
+              )}
               numColumns={1}
-              contentContainerStyle={{
-                gap: 5,
-              }}
+              contentContainerStyle={{ gap: 5 }}
             />
           </View>
 
@@ -89,7 +100,11 @@ export const Cardapio = () => {
         </View>
 
         <ModalConfirmacao visible={mostrarModal} fechar={() => setMostrarModal(false)} />
-
+        <ModalObservacao
+          visible={mostrarModalObs}
+          fechar={() => setMostrarModalObs(false)}
+          produto={itemSelecionado}
+        />
       </View>
     </>
   )
@@ -102,39 +117,39 @@ interface ModalConfirmacaoProps {
 
 const ModalConfirmacao: React.FC<ModalConfirmacaoProps> = ({ visible, fechar }) => {
 
-  const { itensPedido } = useItensPedido()
+  const { itensPedido, limparItens } = useItensPedido()
 
   return (
     <View style={styles.containerModal}>
 
       <Modal
-        style={{
-          width: '80%',
-          height: '60%'
-        }}
+        style={{ minWidth: 330, maxHeight: 500 }} // usar tamanho fixo ou maxWidth
         visible={visible}
         backdropStyle={styles.backdrop}
         onBackdropPress={fechar}
       >
-        <Card style={styles.cardModal} disabled={true}>
-          <Text style={{ textAlign: 'center' }} category="label">Revise os itens do pedido</Text>
+        <Card disabled>
+          <Text style={{ textAlign: 'center' }} category="label">
+            Revise os itens do pedido
+          </Text>
 
-          <View style={{
-            marginBlock: 10,
-            height: '70%'
-          }}>
+          <View style={{ marginVertical: 10, maxHeight: 300 }}>
             <FlatList
               data={itensPedido}
-              renderItem={({ item }) => <ItemConfirmacao descricao={item.descricao} preco={item.preco} />}
-              numColumns={1}
-              contentContainerStyle={{
-                gap: 3,
-              }}
+              keyExtractor={(item) => String(item.id)}
+              renderItem={({ item }) => (
+                <ItemConfirmacao objeto={item} />
+              )}
+              contentContainerStyle={{ gap: 3 }}
             />
           </View>
-          <Button onPress={fechar}>
-            Confirmar
-          </Button>
+
+          <Button onPress={() => {
+            limparItens()
+            fechar()
+          }}
+
+          >Confirmar</Button>
         </Card>
       </Modal>
 
@@ -142,6 +157,56 @@ const ModalConfirmacao: React.FC<ModalConfirmacaoProps> = ({ visible, fechar }) 
   );
 };
 
+interface ModalObservacaoProps {
+  visible: boolean;
+  fechar: () => void;
+  produto: Produto | null;
+}
+
+const ModalObservacao: React.FC<ModalObservacaoProps> = ({ visible, fechar, produto }) => {
+  const [observacao, setObservacao] = useState('');
+
+  const { atualizarObservacao } = useItensPedido();
+
+  if (!produto) return null; // evita render sem item
+
+  return (
+    <View style={styles.containerModal}>
+      <Modal
+        style={{ minWidth: 330, maxHeight: 300 }}
+        visible={visible}
+        backdropStyle={styles.backdrop}
+        onBackdropPress={fechar}
+      >
+        <Card disabled>
+          <Text style={{ textAlign: 'center' }} category="label">
+            Observação para {produto.descricao}
+          </Text>
+
+          <Input
+            label="Observações"
+            placeholder="Digite aqui..."
+            value={observacao}
+            onChangeText={setObservacao}
+            multiline
+          />
+
+          <Button
+            status="warning"
+            appearance="outline"
+            onPress={() => {
+              atualizarObservacao(produto.id_produto!, observacao);
+              fechar();
+              setObservacao('');
+            }}
+          >
+            Adicionar
+          </Button>
+        </Card>
+      </Modal>
+    </View>
+  );
+};
 const styles = StyleSheet.create({
   container: {
     flex: 1,

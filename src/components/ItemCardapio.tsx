@@ -1,10 +1,16 @@
-import { Text, useTheme } from "@ui-kitten/components"
+import { Button, Text, useTheme } from "@ui-kitten/components"
 import { StyleSheet, TouchableOpacity } from "react-native"
 import { Produto } from "../types/produto.type"
 import { useItensPedido } from "../context/ItensPedidoContext";
 import { useState } from "react";
+import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 
-export const ItemCardapio: React.FC<Produto> = ({ id_produto, descricao, preco }) => {
+interface ItemCardapioProps {
+  objeto: Produto,
+  abrirModalObs?: (produto: Produto) => void;
+}
+
+export const ItemCardapio: React.FC<ItemCardapioProps> = ({ objeto, abrirModalObs }) => {
   const theme = useTheme();
 
   const [selecionado, setSelecionado] = useState<boolean>(false)
@@ -15,15 +21,16 @@ export const ItemCardapio: React.FC<Produto> = ({ id_produto, descricao, preco }
     if (acao) {
       adicionarItemPedido({
         id: Math.random(),
-        descricao: descricao,
-        preco: preco,
+        descricao: objeto.descricao,
+        preco: objeto.preco,
         quantidade: 1,
-        total: 1,
+        total: 0,
         horario_adicao: new Date,
-        id_produto: id_produto
+        id_produto: objeto.id_produto,
+        observacao: ''
       })
     } else {
-      removerItemPedido(id_produto ?? "")
+      removerItemPedido(objeto.id_produto ?? "")
     }
   }
 
@@ -34,16 +41,18 @@ export const ItemCardapio: React.FC<Produto> = ({ id_produto, descricao, preco }
         selecionarItem(!selecionado)
       }}
     >
-      <Text style={{ flex: 1, color: 'white' }} category="s1">{descricao}</Text>
-      <Text style={{ color: 'white' }} category="s2">R$ {(preco).toFixed(2)}</Text>
-      {/* <Button
+      <Text style={{ flex: 1, color: 'white' }} category="s1">{objeto.descricao}</Text>
+      <Text style={{ color: 'white' }} category="s2">R$ {(objeto.preco).toFixed(2)}</Text>
+      {/* botao para  adicionar observacao ao item do pedido*/}
+      <Button
         size="tiny"
         style={{
           display: (selecionado) ? 'flex' : 'none'
         }}
+        onPress={() => abrirModalObs?.(objeto)}
         accessoryLeft={<MaterialCommunityIcons name="note-edit-outline" size={13} color="white" />}
       >
-      </Button> */}
+      </Button>
     </TouchableOpacity>
   )
 }

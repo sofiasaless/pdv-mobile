@@ -1,57 +1,57 @@
-import { createContext, useContext, useState, type ReactNode } from "react";
+import React, { createContext, useContext, useState, type ReactNode, useCallback } from "react";
 import { ItemPedido } from "../types/itemPedido.type";
 
 interface ItensPedidoContextType {
-  itensPedido: ItemPedido[],
-  adicionarItemPedido: (item: ItemPedido) => void,
-  removerItemPedido: (id_produto: string) => void,
-  atualizarQuantidadeItem?: (item: ItemPedido, acao: 'MENOS' | 'MAIS') => void,
-  limparItens: () => void,
+  itensPedido: ItemPedido[];
+  adicionarItemPedido: (item: ItemPedido) => void;
+  removerItemPedido: (id_produto?: string) => void;
+  atualizarQuantidadeItem: (item: ItemPedido, acao: 'MENOS' | 'MAIS') => void;
+  limparItens: () => void;
+  atualizarObservacao: (id_produto: string, obs: string) => void
 }
 
 const ItensPedidoContext = createContext<ItensPedidoContextType | undefined>(undefined);
 
 export const ItensPedidoProvider = ({ children }: { children: ReactNode }) => {
-  const [itensPedido, setItensPedido] = useState<ItemPedido[]>([])
-  
-  const adicionarItemPedido = (item: ItemPedido) => {
+  const [itensPedido, setItensPedido] = useState<ItemPedido[]>([]);
+
+  const adicionarItemPedido = useCallback((item: ItemPedido) => {
     setItensPedido(prev => [...prev, item]);
-  }
+  }, []);
 
-  const removerItemPedido = (id_produto: string) => {
-    setItensPedido((prev) => prev.filter((i) => i.id_produto !== id_produto));
-  };
+  const removerItemPedido = useCallback((id_produto?: string) => {
+    if (!id_produto) return;
+    setItensPedido(prev => prev.filter((i) => i.id_produto !== id_produto));
+  }, []);
 
-  const limparItens = () => {
+  const limparItens = useCallback(() => {
     setItensPedido([]);
-  };
+  }, []);
 
-  const atualizarQuantidadeItem = (item: ItemPedido, acao: 'MENOS' | 'MAIS') => {
+  const atualizarQuantidadeItem = useCallback((item: ItemPedido, acao: 'MENOS' | 'MAIS') => {
+    setItensPedido(prev =>
+      prev.map(it => (it.id === item.id ? {
+        ...it,
+        quantidade: acao === 'MAIS' ? it.quantidade + 1 : Math.max(0, it.quantidade - 1)
+      } : it))
+    );
+  }, []);
+
+  const atualizarObservacao = (id_produto: string, obs: string) => {
     setItensPedido((prev) =>
-      prev.map((it) => {
-        if (it.id === item.id) {
-          return {
-            ...it,
-            quantidade:
-              acao === 'MAIS'
-                ? it.quantidade + 1
-                : it.quantidade > 0
-                  ? it.quantidade - 1
-                  : 0,
-          };
-        }
-        return it;
-      })
+      prev.map((item) =>
+        item.id_produto === id_produto ? { ...item, observacao: obs } : item
+      )
     );
   };
 
   return (
-    <ItensPedidoContext.Provider value={{ itensPedido, adicionarItemPedido, removerItemPedido, limparItens, atualizarQuantidadeItem }}>
+    <ItensPedidoContext.Provider value={{ itensPedido, adicionarItemPedido, removerItemPedido, limparItens, atualizarQuantidadeItem, atualizarObservacao }}
+    >
       {children}
     </ItensPedidoContext.Provider>
   );
-
-}
+};
 
 export const useItensPedido = () => {
   const context = useContext(ItensPedidoContext);
