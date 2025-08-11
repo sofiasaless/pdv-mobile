@@ -24,6 +24,7 @@ import {
 import { authFirebase } from "../auth/auth.firebase";
 import { NavigationProp, useNavigation } from "@react-navigation/native";
 import { RootStackParamList } from "../routes/StackRoutes";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function Login() {
   const theme = useTheme();
@@ -36,6 +37,8 @@ export default function Login() {
 
   // para o modal
   const [visibleModal, setVisibleModal] = useState(false);
+
+  const navigator = useNavigation<NavigationProp<RootStackParamList>>();
 
   return (
     <>
@@ -102,7 +105,7 @@ export default function Login() {
           {/* <Button
             size="tiny"
             onPress={async () => {
-              await authFirebase.logoutUsuario()
+              console.log(await AsyncStorage.getItem('usuario'))
             }}
           >logout</Button> */}
         </View>

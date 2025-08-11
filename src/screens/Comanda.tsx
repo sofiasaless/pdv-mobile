@@ -21,6 +21,8 @@ import { NavigationProp, RouteProp, useFocusEffect, useNavigation } from "@react
 import { RootStackParamList } from "../routes/StackRoutes";
 import { Mesa, StatusMesa } from "../types/mesa.type";
 import { mesaFirestore } from "../firestore/mesa.firestore";
+import { authFirebase } from "../auth/auth.firebase";
+import { Usuario } from "../types/usuario.type";
 
 type ComandaRouteProp = RouteProp<RootStackParamList, "Comanda">;
 
@@ -37,7 +39,11 @@ export const Comanda: React.FC<Props> = ({ route }) => {
   const [mesa, setMesa] = useState<Mesa>()
   const [total, setTotal] = useState<number>(0)
 
+  const [usuario, setUsuario] = useState<Usuario>()
+
   const carregarMesa = async () => {
+    setUsuario(await authFirebase.verificarLogin());
+
     if (id != undefined) {
       await mesaFirestore.recuperarMesaPorId(id).then((dados) => {
         if (dados != undefined) {
@@ -51,7 +57,7 @@ export const Comanda: React.FC<Props> = ({ route }) => {
   useFocusEffect(
     useCallback(() => {
       carregarMesa()
-    }, [id, mesa])
+    }, [id, mesa, usuario])
   );
 
   return (
@@ -110,12 +116,21 @@ export const Comanda: React.FC<Props> = ({ route }) => {
             <Button
               accessoryRight={<Ionicons name="receipt" size={20} color="white" />}
               onPress={async () => {
-                await mesaFirestore.atualizarMesa('bloqueada', id ?? '')
-                navigator.goBack();
+                // await mesaFirestore.atualizarMesa('bloqueada', id ?? '')
+                // navigator.goBack();
+
+                await authFirebase.logoutUsuario()
               }}
             >Encerrar conta</Button>
 
-            <View style={styles.btnsOtherView}>
+            <View
+              style={[
+                styles.btnsOtherView,
+                {
+                  display: (usuario?.role.includes('GERENTE') ? 'flex' : 'none')
+                }
+              ]}
+            >
               <Button status="success" style={{ flex: 1 }}
                 accessoryRight={<MaterialCommunityIcons name="transfer" size={20} color="white" />}
               >Transferir itens</Button>
@@ -125,7 +140,17 @@ export const Comanda: React.FC<Props> = ({ route }) => {
             </View>
           </View>
 
-          <View style={[styles.btnsView, { display: (mesa?.status === 'bloqueada') ? 'flex' : 'none' }]}>
+          <View
+            style={[
+              styles.btnsView,
+              {
+                display: (mesa?.status === 'bloqueada') ?
+                  (usuario?.role.includes('GERENTE')) ? 'flex' : 'none'
+                  :
+                  'none'
+              }
+            ]}
+          >
             <Button status="success"
               accessoryRight={<MaterialIcons name="payments" size={20} color="white" />}
             >Confirmar pagamento</Button>

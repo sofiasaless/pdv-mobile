@@ -28,13 +28,13 @@ import { mesaFirestore } from "../firestore/mesa.firestore";
 type CardapioRouteProp = RouteProp<RootStackParamList, "Cardapio">;
 
 type Props = {
-  route: CardapioRouteProp;
+  route?: CardapioRouteProp;
 };
 
 export const Cardapio: React.FC<Props> = ({ route }) => {
   const theme = useTheme();
 
-  const idMesa = route.params.idMesa;
+  const idMesa = route?.params.idMesa;
 
 
   const [produtosCardapio, setProdutosCardapio] = useState<Produto[]>([]);

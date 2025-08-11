@@ -3,13 +3,16 @@ import { SafeAreaProvider } from "react-native-safe-area-context";
 import StackRoutes from "./StackRoutes";
 
 import { enableScreens } from 'react-native-screens';
+import { ProtectedPageLayout } from "../layout/ProtectedPageLayout";
 enableScreens();
 
 export default function Routes(){
   return(
     <SafeAreaProvider>
       <NavigationContainer>
-        <StackRoutes/>
+        <ProtectedPageLayout>
+          <StackRoutes/>
+        </ProtectedPageLayout>
       </NavigationContainer>
     </SafeAreaProvider>
   )

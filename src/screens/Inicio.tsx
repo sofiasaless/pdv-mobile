@@ -18,34 +18,35 @@ import { useCallback, useEffect, useState } from "react";
 import { Mesa, StatusMesa } from "../types/mesa.type";
 import { mesaFirestore } from "../firestore/mesa.firestore";
 import { useFocusEffect } from "@react-navigation/native";
+import { authFirebase } from "../auth/auth.firebase";
+import { Usuario } from "../types/usuario.type";
 
 export default function Inicio() {
   const theme = useTheme();
 
   const [mesas, setMesas] = useState<Mesa[]>([])
   const [qtdMesas, setQtdMesas] = useState<number[]>([])
+  const [usuario, setUsuario] = useState<Usuario>()
 
-  async function carregarMesas(status: StatusMesa | 'todas') {
-    if (status === 'todas') {
-      await mesaFirestore.recuperarMesas().then((dados) => {
-        if (dados != undefined) {
-          setMesas(dados)
-        }
-      })
-    } else {
-
-    }
+  async function carregarMesas() {
+    await mesaFirestore.recuperarMesas().then((dados) => {
+      if (dados != undefined) {
+        setMesas(dados)
+      }
+    })
 
     await mesaFirestore.contarMesas().then((dados) => {
       setQtdMesas(dados ?? [])
     })
+
+    setUsuario(await authFirebase.verificarLogin());
   }
 
 
   useFocusEffect(
     useCallback(() => {
-      carregarMesas('todas')
-    },[])
+      carregarMesas()
+    }, [usuario])
   );
 
 
@@ -62,12 +63,19 @@ export default function Inicio() {
               Bem-vindo ao Up! PDV
             </Text>
             <Text style={[styles.text, { color: theme['color-primary-200'] }]} category='caption'>
-              Operador Gerente
+              Operador {usuario?.tipo}
             </Text>
           </View>
 
           <View style={[styles.conteudoUmInterno]}>
-            <Button size="medium" style={{ padding: 0, justifyContent: 'center', alignItems: 'center' }}
+            <Button size="medium"
+              style={{
+                padding: 0, justifyContent: 'center', alignItems: 'center',
+                display: (usuario?.role.includes('GERENTE')) ? 'flex' : 'none'
+              }}
+            // onPress={async () => {
+            //   await authFirebase.logoutUsuario();
+            // }}
             >
               <MaterialIcons name="settings" size={80} color="white" />
             </Button>
