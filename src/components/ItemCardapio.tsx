@@ -29,6 +29,8 @@ export const ItemCardapio: React.FC<ItemCardapioProps> = ({ objeto, abrirModalOb
         id_produto: objeto.id_produto,
         observacao: ''
       })
+
+      abrirModalObs?.(objeto)
     } else {
       removerItemPedido(objeto.id_produto ?? "")
     }
@@ -44,7 +46,7 @@ export const ItemCardapio: React.FC<ItemCardapioProps> = ({ objeto, abrirModalOb
       <Text style={{ flex: 1, color: 'white' }} category="s1">{objeto.descricao}</Text>
       <Text style={{ color: 'white' }} category="s2">R$ {(objeto.preco).toFixed(2)}</Text>
       {/* botao para  adicionar observacao ao item do pedido*/}
-      <Button
+      {/* <Button
         size="tiny"
         style={{
           display: (selecionado) ? 'flex' : 'none'
@@ -52,7 +54,7 @@ export const ItemCardapio: React.FC<ItemCardapioProps> = ({ objeto, abrirModalOb
         onPress={() => abrirModalObs?.(objeto)}
         accessoryLeft={<MaterialCommunityIcons name="note-edit-outline" size={13} color="white" />}
       >
-      </Button>
+      </Button> */}
     </TouchableOpacity>
   )
 }

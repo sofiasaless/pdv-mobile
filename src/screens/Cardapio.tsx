@@ -21,9 +21,21 @@ import { ItemConfirmacao } from "../components/ItemConfirmacao";
 import { Produto } from "../types/produto.type";
 import { cardapioFirestore } from "../firestore/cardapio.firestore";
 import { useItensPedido } from "../context/ItensPedidoContext";
+import { RouteProp, useNavigation } from "@react-navigation/native";
+import { RootStackParamList } from "../routes/StackRoutes";
+import { mesaFirestore } from "../firestore/mesa.firestore";
 
-export const Cardapio = () => {
+type CardapioRouteProp = RouteProp<RootStackParamList, "Cardapio">;
+
+type Props = {
+  route: CardapioRouteProp;
+};
+
+export const Cardapio: React.FC<Props> = ({ route }) => {
   const theme = useTheme();
+
+  const idMesa = route.params.idMesa;
+
 
   const [value, setValue] = useState<string>('');
   const [produtosCardapio, setProdutosCardapio] = useState<Produto[]>([]);
@@ -99,7 +111,7 @@ export const Cardapio = () => {
 
         </View>
 
-        <ModalConfirmacao visible={mostrarModal} fechar={() => setMostrarModal(false)} />
+        <ModalConfirmacao visible={mostrarModal} fechar={() => setMostrarModal(false)} idMesa={idMesa ?? ""} />
         <ModalObservacao
           visible={mostrarModalObs}
           fechar={() => setMostrarModalObs(false)}
@@ -113,11 +125,13 @@ export const Cardapio = () => {
 interface ModalConfirmacaoProps {
   visible: boolean,
   fechar: () => void,
+  idMesa: string
 }
 
-const ModalConfirmacao: React.FC<ModalConfirmacaoProps> = ({ visible, fechar }) => {
+const ModalConfirmacao: React.FC<ModalConfirmacaoProps> = ({ visible, fechar, idMesa }) => {
 
   const { itensPedido, limparItens } = useItensPedido()
+  const navigator = useNavigation();
 
   return (
     <View style={styles.containerModal}>
@@ -144,9 +158,14 @@ const ModalConfirmacao: React.FC<ModalConfirmacaoProps> = ({ visible, fechar }) 
             />
           </View>
 
-          <Button onPress={() => {
+          <Button onPress={async () => {
+            // console.log(itensPedido)
+            // console.log(idMesa)
+            await mesaFirestore.adicionarPedidos(itensPedido, idMesa)
+
             limparItens()
             fechar()
+            navigator.goBack()
           }}
 
           >Confirmar</Button>

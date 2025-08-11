@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import {
   Button,
   CheckBox,
@@ -16,7 +16,7 @@ import AntDesign from '@expo/vector-icons/AntDesign';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { ItemComanda, ItemComandaProps } from "../components/ItemComanda";
-import { NavigationProp, RouteProp, useNavigation } from "@react-navigation/native";
+import { NavigationProp, RouteProp, useFocusEffect, useNavigation } from "@react-navigation/native";
 import { RootStackParamList } from "../routes/StackRoutes";
 import { Mesa, StatusMesa } from "../types/mesa.type";
 import { mesaFirestore } from "../firestore/mesa.firestore";
@@ -47,9 +47,11 @@ export const Comanda: React.FC<Props> = ({ route }) => {
     }
   }
 
-  useEffect(() => {
-    carregarMesa()
-  }, [id])
+  useFocusEffect(
+    useCallback(() => {
+      carregarMesa()
+    }, [id])
+  );
 
   return (
     <>
@@ -82,7 +84,9 @@ export const Comanda: React.FC<Props> = ({ route }) => {
               size="small"
               accessoryRight={<AntDesign name="plus" size={15} color="#DB8B00" />}
               onPress={() => {
-                navigator.navigate('Cardapio')
+                navigator.navigate('Cardapio', {
+                  idMesa: id
+                })
               }}
             >Selecionar produto do cardápio</Button>
           </View>

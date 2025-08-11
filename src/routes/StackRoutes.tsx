@@ -5,7 +5,7 @@ import { RouteProp } from '@react-navigation/native';
 export type RootStackParamList = {
   Home: undefined;
   Comanda: { idMesa: string | undefined };
-  Cardapio: undefined;
+  Cardapio: { idMesa: string | undefined };
 };
 
 const Stack = createStackNavigator<RootStackParamList>();

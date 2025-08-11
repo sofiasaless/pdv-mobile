@@ -14,14 +14,16 @@ import {
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { CardMesa } from "../components/CardMesa";
 import { QuantidadeInfo } from "../components/QuantidadeInfo";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Mesa, StatusMesa } from "../types/mesa.type";
 import { mesaFirestore } from "../firestore/mesa.firestore";
+import { useFocusEffect } from "@react-navigation/native";
 
 export default function Inicio() {
   const theme = useTheme();
 
   const [mesas, setMesas] = useState<Mesa[]>([])
+  const [qtdMesas, setQtdMesas] = useState<number[]>([])
 
   async function carregarMesas() {
     await mesaFirestore.recuperarMesas().then((dados) => {
@@ -29,11 +31,18 @@ export default function Inicio() {
         setMesas(dados)
       }
     })
+
+    await mesaFirestore.contarMesas().then((dados) => {
+      setQtdMesas(dados ?? [])
+    })
   }
 
-  useEffect(() => {
-    carregarMesas()
-  }, [])
+
+  useFocusEffect(
+    useCallback(() => {
+      carregarMesas()
+    },[])
+  );
 
 
   return (
@@ -65,9 +74,9 @@ export default function Inicio() {
         {/* renderização das mesas */}
         <View style={[styles.conteudoDois, { backgroundColor: theme['color-primary-100'] }]}>
           <View style={styles.infosMesa}>
-            <QuantidadeInfo tema="primary" descricao="livres" quantidade={20} />
-            <QuantidadeInfo tema="success" descricao="ocupadas" quantidade={2} />
-            <QuantidadeInfo tema="danger" descricao="aguardando" quantidade={3} />
+            <QuantidadeInfo tema="primary" descricao={`livres`} quantidade={qtdMesas[0]} />
+            <QuantidadeInfo tema="success" descricao="ocupadas" quantidade={qtdMesas[1]} />
+            <QuantidadeInfo tema="danger" descricao="aguardando" quantidade={qtdMesas[3]} />
           </View>
 
           <Divider />
