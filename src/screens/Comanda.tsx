@@ -15,6 +15,7 @@ import { LabelInfo } from "../components/LabelInfo";
 import AntDesign from '@expo/vector-icons/AntDesign';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
+import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { ItemComanda, ItemComandaProps } from "../components/ItemComanda";
 import { NavigationProp, RouteProp, useFocusEffect, useNavigation } from "@react-navigation/native";
 import { RootStackParamList } from "../routes/StackRoutes";
@@ -50,7 +51,7 @@ export const Comanda: React.FC<Props> = ({ route }) => {
   useFocusEffect(
     useCallback(() => {
       carregarMesa()
-    }, [id])
+    }, [id, mesa])
   );
 
   return (
@@ -77,8 +78,9 @@ export const Comanda: React.FC<Props> = ({ route }) => {
 
         {/* renderização das mesas */}
         <View style={[styles.conteudoDois, { backgroundColor: theme['color-primary-100'] }]}>
-          <View style={styles.btnsView}>
+          <View style={[styles.btnsView, { display: (mesa?.status === 'bloqueada') ? 'none' : 'flex' }]}>
             <Button
+              disabled={(mesa?.status === 'bloqueada') ? true : false}
               status="warning"
               appearance="outline"
               size="small"
@@ -104,9 +106,13 @@ export const Comanda: React.FC<Props> = ({ route }) => {
             />
           </View>
 
-          <View style={styles.btnsView}>
+          <View style={[styles.btnsView, { display: (mesa?.status === 'bloqueada') ? 'none' : 'flex' }]}>
             <Button
               accessoryRight={<Ionicons name="receipt" size={20} color="white" />}
+              onPress={async () => {
+                await mesaFirestore.atualizarMesa('bloqueada', id ?? '')
+                navigator.goBack();
+              }}
             >Encerrar conta</Button>
 
             <View style={styles.btnsOtherView}>
@@ -116,6 +122,25 @@ export const Comanda: React.FC<Props> = ({ route }) => {
               <Button status="danger" style={{ flex: 1 }}
                 accessoryRight={<MaterialCommunityIcons name="trash-can" size={20} color="white" />}
               >Excluir itens</Button>
+            </View>
+          </View>
+
+          <View style={[styles.btnsView, { display: (mesa?.status === 'bloqueada') ? 'flex' : 'none' }]}>
+            <Button status="success"
+              accessoryRight={<MaterialIcons name="payments" size={20} color="white" />}
+            >Confirmar pagamento</Button>
+
+            <View style={styles.btnsOtherView}>
+              <Button status="warning" style={{ flex: 1 }}
+                accessoryRight={<MaterialIcons name="menu-open" size={20} color="white" />}
+                onPress={async () => {
+                  await mesaFirestore.atualizarMesa('ocupada', id ?? "");
+                  navigator.goBack();
+                }}
+              >Reabir mesa</Button>
+              <Button status="info" style={{ flex: 1 }}
+                accessoryRight={<MaterialIcons name="print" size={20} color="white" />}
+              >Imprimir</Button>
             </View>
           </View>
 

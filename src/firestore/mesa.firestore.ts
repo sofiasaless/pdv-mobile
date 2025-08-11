@@ -73,6 +73,21 @@ export const mesaFirestore = {
     }
   },
 
+  atualizarMesa: async (status: StatusMesa, id_mesa: string) => {
+    try {
+      const mesaRef = doc(firestore, nomeColecao, id_mesa);
+
+      await updateDoc(mesaRef, {
+        status: status,
+      });
+
+      console.log('mesa atualizados com sucesso!')
+
+    } catch (error) {
+      console.log('erro ao adicionar no pedido ', error)
+    }
+  },
+
   contarMesas: async () => {
     try {
       const mesaRef = collection(firestore, nomeColecao);
