@@ -25,12 +25,16 @@ export default function Inicio() {
   const [mesas, setMesas] = useState<Mesa[]>([])
   const [qtdMesas, setQtdMesas] = useState<number[]>([])
 
-  async function carregarMesas() {
-    await mesaFirestore.recuperarMesas().then((dados) => {
-      if (dados != undefined) {
-        setMesas(dados)
-      }
-    })
+  async function carregarMesas(status: StatusMesa | 'todas') {
+    if (status === 'todas') {
+      await mesaFirestore.recuperarMesas().then((dados) => {
+        if (dados != undefined) {
+          setMesas(dados)
+        }
+      })
+    } else {
+
+    }
 
     await mesaFirestore.contarMesas().then((dados) => {
       setQtdMesas(dados ?? [])
@@ -40,7 +44,7 @@ export default function Inicio() {
 
   useFocusEffect(
     useCallback(() => {
-      carregarMesas()
+      carregarMesas('todas')
     },[])
   );
 
@@ -76,16 +80,16 @@ export default function Inicio() {
           <View style={styles.infosMesa}>
             <QuantidadeInfo tema="primary" descricao={`livres`} quantidade={qtdMesas[0]} />
             <QuantidadeInfo tema="success" descricao="ocupadas" quantidade={qtdMesas[1]} />
-            <QuantidadeInfo tema="danger" descricao="aguardando" quantidade={qtdMesas[3]} />
+            <QuantidadeInfo tema="danger" descricao="aguardando" quantidade={qtdMesas[2]} />
           </View>
 
           <Divider />
 
-          <View style={styles.filtragem}>
+          {/* <View style={styles.filtragem}>
             <CheckBox status='primary'>Livres</CheckBox>
             <CheckBox status='success'>Ocupadas</CheckBox>
             <CheckBox status='danger'>Aguardando</CheckBox>
-          </View>
+          </View> */}
 
           <FlatList
             data={mesas}
@@ -159,23 +163,3 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   }
 });
-
-
-const mesas = [
-  { id: "1", status: "disponivel" },
-  { id: "2", status: "ocupada" },
-  { id: "3", status: "ocupada" },
-  { id: "4", status: "aguardando" },
-  { id: "5", status: "disponivel" },
-  { id: "6", status: "disponivel" },
-  { id: "7", status: "disponivel" },
-  { id: "8", status: "aguardando" },
-  { id: "9", status: "disponivel" },
-  { id: "10", status: "ocupada" },
-  { id: "11", status: "ocupada" },
-  { id: "12", status: "aguardando" },
-  { id: "13", status: "disponivel" },
-  { id: "14", status: "disponivel" },
-  { id: "15", status: "disponivel" },
-  { id: "16", status: "aguardando" },
-];
