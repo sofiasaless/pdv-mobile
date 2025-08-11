@@ -46,6 +46,29 @@ export const mesaFirestore = {
     }
   },
 
+  recuperarMesasPorStatus: async (status: StatusMesa) => {
+    try {
+      const q = query(
+        collection(firestore, nomeColecao),
+        where('status', "==", status)
+      );
+
+      const snapshot = await getDocs(q);
+      let mesasEncontradas: any[] = []
+
+      snapshot.docs.map((mesa) => {
+        mesasEncontradas.push({
+          id_mesa: mesa.id,
+          ...mesa.data()
+        })
+      })
+
+      return mesasEncontradas as Mesa[]
+    } catch (error) {
+      console.log('ocorreu um erro ao filtrar as mesas por status ', error)
+    }
+  },
+
   registrarMesa: async (mesa: Mesa) => {
     try {
       const docRef = await addDoc(collection(firestore, nomeColecao), mesa);

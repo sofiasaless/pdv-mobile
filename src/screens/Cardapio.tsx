@@ -37,15 +37,21 @@ export const Cardapio: React.FC<Props> = ({ route }) => {
   const idMesa = route.params.idMesa;
 
 
-  const [value, setValue] = useState<string>('');
   const [produtosCardapio, setProdutosCardapio] = useState<Produto[]>([]);
 
   const [mostrarModal, setMostrarModal] = useState<boolean>(false)
   const [mostrarModalObs, setMostrarModalObs] = useState(false);
   const [itemSelecionado, setItemSelecionado] = useState<Produto | null>(null);
 
+  // pesquisa por produtos
+  const [pesquisa, setPesquisa] = useState<string>('')
+  const produtosFiltrados = produtosCardapio.filter((item) =>
+    item.descricao.toLowerCase().includes(pesquisa.toLowerCase().trim())
+  );
+
 
   const carregarCardapio = async () => {
+    console.log('renderizando cardapio ')
     await cardapioFirestore.recuperarCardapio().then((dados) => {
       if (dados != undefined) {
         setProdutosCardapio(dados)
@@ -73,18 +79,18 @@ export const Cardapio: React.FC<Props> = ({ route }) => {
           <View style={styles.btnsView}>
             <Input
               placeholder='Pesquisar por produto'
-              value={value}
+              value={pesquisa}
               status="primary"
               appearance="outline"
               accessoryRight={<MaterialIcons name="search" size={24} color="#274BDB" />}
-              onChangeText={nextValue => setValue(nextValue)}
+              onChangeText={nextValue => setPesquisa(nextValue)}
             />
           </View>
 
           <View style={{ height: '70%' }}>
             <FlatList
               keyExtractor={(item) => item.id_produto ?? item.descricao}
-              data={produtosCardapio}
+              data={produtosFiltrados}
               renderItem={({ item }) => (
                 <ItemCardapio
                   objeto={item}
