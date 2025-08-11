@@ -10,11 +10,15 @@
   },
   "dependencies": {
     "@eva-design/eva": "^2.2.0",
+    "@react-navigation/native": "^7.1.17",
+    "@react-navigation/stack": "^7.4.5",
     "@ui-kitten/components": "^5.3.1",
     "expo": "~53.0.20",
     "expo-status-bar": "~2.2.3",
+    "firebase": "^12.1.0",
     "react": "19.0.0",
     "react-native": "0.79.5",
+    "react-native-dotenv": "^3.4.11",
     "react-native-keyboard-aware-scroll-view": "^0.9.5",
     "react-native-svg": "15.11.2"
   },

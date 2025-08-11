@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Button,
   Card,
@@ -15,25 +15,58 @@ import {
   View,
 } from "react-native";
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { ItemComandaProps } from "../components/ItemComanda";
 import { ItemCardapio } from "../components/ItemCardapio";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { ItemConfirmacao } from "../components/ItemConfirmacao";
+import { Produto } from "../types/produto.type";
+import { cardapioFirestore } from "../firestore/cardapio.firestore";
+import { useItensPedido } from "../context/ItensPedidoContext";
+import { RouteProp, useNavigation } from "@react-navigation/native";
+import { RootStackParamList } from "../routes/StackRoutes";
+import { mesaFirestore } from "../firestore/mesa.firestore";
 
-export const Cardapio = () => {
+type CardapioRouteProp = RouteProp<RootStackParamList, "Cardapio">;
+
+type Props = {
+  route: CardapioRouteProp;
+};
+
+export const Cardapio: React.FC<Props> = ({ route }) => {
   const theme = useTheme();
 
+  const idMesa = route.params.idMesa;
+
+
   const [value, setValue] = useState<string>('');
+  const [produtosCardapio, setProdutosCardapio] = useState<Produto[]>([]);
+
+  const [mostrarModal, setMostrarModal] = useState<boolean>(false)
+  const [mostrarModalObs, setMostrarModalObs] = useState(false);
+  const [itemSelecionado, setItemSelecionado] = useState<Produto | null>(null);
+
+
+  const carregarCardapio = async () => {
+    await cardapioFirestore.recuperarCardapio().then((dados) => {
+      if (dados != undefined) {
+        setProdutosCardapio(dados)
+      }
+    })
+  }
+
+  useEffect(() => {
+    carregarCardapio()
+  }, [])
 
   return (
     <>
+
       <View
         style={[styles.container, { backgroundColor: theme['color-primary-800'] }]}
       >
 
-        <View style={styles.conteudoUm}>
+        {/* <View style={styles.conteudoUm}>
 
-        </View>
+          </View> */}
 
         {/* renderização das mesas */}
         <View style={[styles.conteudoDois, { backgroundColor: theme['color-primary-100'] }]}>
@@ -50,12 +83,19 @@ export const Cardapio = () => {
 
           <View style={{ height: '70%' }}>
             <FlatList
-              data={itensComanda}
-              renderItem={({ item }) => <ItemCardapio descricao={item.descricao} preco={item.preco} />}
+              keyExtractor={(item) => item.id_produto ?? item.descricao}
+              data={produtosCardapio}
+              renderItem={({ item }) => (
+                <ItemCardapio
+                  objeto={item}
+                  abrirModalObs={(produto) => {
+                    setItemSelecionado(produto);
+                    setMostrarModalObs(true);
+                  }}
+                />
+              )}
               numColumns={1}
-              contentContainerStyle={{
-                gap: 5,
-              }}
+              contentContainerStyle={{ gap: 5 }}
             />
           </View>
 
@@ -63,53 +103,72 @@ export const Cardapio = () => {
             <Button
               appearance="outline"
               accessoryRight={<Ionicons name="receipt" size={20} color="#3366FF" />}
+              onPress={() => {
+                setMostrarModal(true)
+              }}
             >Adicionar ao pedido</Button>
           </View>
 
         </View>
 
-        <ModalConfirmacao />
-
+        <ModalConfirmacao visible={mostrarModal} fechar={() => setMostrarModal(false)} idMesa={idMesa ?? ""} />
+        <ModalObservacao
+          visible={mostrarModalObs}
+          fechar={() => setMostrarModalObs(false)}
+          produto={itemSelecionado}
+        />
       </View>
     </>
   )
 }
 
-export const ModalConfirmacao = () => {
+interface ModalConfirmacaoProps {
+  visible: boolean,
+  fechar: () => void,
+  idMesa: string
+}
 
-  const [visible, setVisible] = useState(true);
+const ModalConfirmacao: React.FC<ModalConfirmacaoProps> = ({ visible, fechar, idMesa }) => {
+
+  const { itensPedido, limparItens } = useItensPedido()
+  const navigator = useNavigation();
 
   return (
     <View style={styles.containerModal}>
 
       <Modal
-        style={{
-          width: '80%',
-          height: '60%'
-        }}
+        style={{ minWidth: 330, maxHeight: 500 }} // usar tamanho fixo ou maxWidth
         visible={visible}
         backdropStyle={styles.backdrop}
-        onBackdropPress={() => setVisible(false)}
+        onBackdropPress={fechar}
       >
-        <Card style={styles.cardModal} disabled={true}>
-          <Text style={{ textAlign: 'center' }} category="label">Revise os itens do pedido</Text>
-          
-          <View style={{
-            marginBlock: 10,
-            height: '70%'
-          }}>
+        <Card disabled>
+          <Text style={{ textAlign: 'center' }} category="label">
+            Revise os itens do pedido
+          </Text>
+
+          <View style={{ marginVertical: 10, maxHeight: 300 }}>
             <FlatList
-              data={itensComanda}
-              renderItem={({ item }) => <ItemConfirmacao descricao={item.descricao} preco={item.preco} />}
-              numColumns={1}
-              contentContainerStyle={{
-                gap: 3,
-              }}
+              data={itensPedido}
+              keyExtractor={(item) => String(item.id)}
+              renderItem={({ item }) => (
+                <ItemConfirmacao objeto={item} />
+              )}
+              contentContainerStyle={{ gap: 3 }}
             />
           </View>
-          <Button onPress={() => setVisible(false)}>
-            Confirmar
-          </Button>
+
+          <Button onPress={async () => {
+            // console.log(itensPedido)
+            // console.log(idMesa)
+            await mesaFirestore.adicionarPedidos(itensPedido, idMesa)
+
+            limparItens()
+            fechar()
+            navigator.goBack()
+          }}
+
+          >Confirmar</Button>
         </Card>
       </Modal>
 
@@ -117,6 +176,56 @@ export const ModalConfirmacao = () => {
   );
 };
 
+interface ModalObservacaoProps {
+  visible: boolean;
+  fechar: () => void;
+  produto: Produto | null;
+}
+
+const ModalObservacao: React.FC<ModalObservacaoProps> = ({ visible, fechar, produto }) => {
+  const [observacao, setObservacao] = useState('');
+
+  const { atualizarObservacao } = useItensPedido();
+
+  if (!produto) return null; // evita render sem item
+
+  return (
+    <View style={styles.containerModal}>
+      <Modal
+        style={{ minWidth: 330, maxHeight: 300 }}
+        visible={visible}
+        backdropStyle={styles.backdrop}
+        onBackdropPress={fechar}
+      >
+        <Card disabled>
+          <Text style={{ textAlign: 'center' }} category="label">
+            Observação para {produto.descricao}
+          </Text>
+
+          <Input
+            label="Observações"
+            placeholder="Digite aqui..."
+            value={observacao}
+            onChangeText={setObservacao}
+            multiline
+          />
+
+          <Button
+            status="warning"
+            appearance="outline"
+            onPress={() => {
+              atualizarObservacao(produto.id_produto!, observacao);
+              fechar();
+              setObservacao('');
+            }}
+          >
+            Adicionar
+          </Button>
+        </Card>
+      </Modal>
+    </View>
+  );
+};
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -132,7 +241,7 @@ const styles = StyleSheet.create({
     gap: '5%'
   },
   conteudoDois: {
-    height: '90%',
+    height: '100%',
     borderTopEndRadius: 35,
     borderTopStartRadius: 35,
     // paddingHorizontal: '8%',
@@ -155,28 +264,3 @@ const styles = StyleSheet.create({
     // backgroundColor: 'red'
   }
 });
-
-const itensComanda: ItemComandaProps[] = [
-  { id: 1, quantidade: 2, descricao: "Café expresso", horario: "08:15", preco: 5.5 },
-  { id: 2, quantidade: 1, descricao: "Pão de queijo", horario: "08:20", preco: 4.0 },
-  { id: 3, quantidade: 3, descricao: "Suco de laranja", horario: "08:45", preco: 7.0 },
-  { id: 4, quantidade: 1, descricao: "Bolo de chocolate", horario: "09:00", preco: 6.5 },
-  { id: 5, quantidade: 2, descricao: "Cappuccino", horario: "09:10", preco: 8.0 },
-  { id: 6, quantidade: 1, descricao: "Torrada com manteiga", horario: "09:15", preco: 3.5 },
-  { id: 7, quantidade: 4, descricao: "Refrigerante lata", horario: "09:30", preco: 6.0 },
-  { id: 8, quantidade: 2, descricao: "Sanduíche natural", horario: "09:45", preco: 9.5 },
-  { id: 9, quantidade: 1, descricao: "Pastel de carne", horario: "10:00", preco: 5.0 },
-  { id: 10, quantidade: 2, descricao: "Água mineral", horario: "10:05", preco: 3.0 },
-  { id: 11, quantidade: 1, descricao: "Milk-shake de morango", horario: "10:20", preco: 12.0 },
-  { id: 12, quantidade: 3, descricao: "Empada de frango", horario: "10:40", preco: 4.5 },
-  { id: 13, quantidade: 2, descricao: "Chá gelado", horario: "10:50", preco: 6.0 },
-  { id: 14, quantidade: 1, descricao: "Bauru", horario: "11:10", preco: 10.0 },
-  { id: 15, quantidade: 1, descricao: "Cookie de chocolate", horario: "11:15", preco: 4.5 }
-];
-
-const itensConfirma: ItemComandaProps[] = [
-  { id: 1, quantidade: 2, descricao: "Café expresso", horario: "08:15", preco: 5.5 },
-  { id: 2, quantidade: 1, descricao: "Pão de queijo", horario: "08:20", preco: 4.0 },
-  { id: 3, quantidade: 3, descricao: "Suco de laranja", horario: "08:45", preco: 7.0 },
-  { id: 4, quantidade: 1, descricao: "Bolo de chocolate", horario: "09:00", preco: 6.5 },
-];

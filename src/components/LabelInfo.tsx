@@ -1,44 +1,50 @@
 import { Card, Layout, Text, useTheme } from "@ui-kitten/components";
 import React, { useEffect, useState } from "react";
+import { StyleSheet, View } from "react-native";
+import { StatusMesa } from "../types/mesa.type";
 
 interface LabelInfoProps {
-  tema: 'danger' | 'success' | 'primary',
-  descricao: 'livres' | 'ocupadas' | 'aguardando' | string,
+  descricao: StatusMesa,
   tamanhoLetra: 'label' | 'c1' | 's1' | 's2' | 'h5'
 }
 
-export const LabelInfo: React.FC<LabelInfoProps> = ({ tema, descricao, tamanhoLetra }) => {
+export const LabelInfo: React.FC<LabelInfoProps> = ({ descricao, tamanhoLetra }) => {
   const theme = useTheme();
 
   const [backgroundColor, setBackgroundColor] = useState<string>('')
   const [textColor, setTextColor] = useState<string>('')
 
   useEffect(() => {
-    if (tema === 'primary') {
+    if (descricao === 'disponivel') {
       setBackgroundColor('color-primary-200')
       setTextColor('color-primary-800')
-    } else if (tema === 'success') {
+    } else if (descricao === 'ocupada') {
       setBackgroundColor('color-success-200')
       setTextColor('color-success-700')
     } else {
       setBackgroundColor('color-danger-200')
       setTextColor('color-danger-800')
     }
-  }, [tema])
+  }, [descricao])
 
   return (
-    <Layout
-      style={{
-        borderRadius: 5,
-        padding: 5,
+    <View
+      style={[styles.labelContainer, {
         backgroundColor: theme[backgroundColor]
-      }}
+      }]}
     >
       <Text category={tamanhoLetra}
         style={{
           color: theme[textColor]
         }}
       >{descricao.toUpperCase()}</Text>
-    </Layout>
+    </View>
   );
 }
+
+const styles = StyleSheet.create({
+  labelContainer: {
+    borderRadius: 5,
+    padding: 5,
+  }
+})

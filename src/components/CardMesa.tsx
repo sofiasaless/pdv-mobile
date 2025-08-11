@@ -1,19 +1,24 @@
 import { Card, Layout, Text, useTheme } from "@ui-kitten/components"
 import { StyleSheet, View } from "react-native"
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
+import { useNavigation, NavigationProp } from "@react-navigation/native";
+import { RootStackParamList } from "../routes/StackRoutes";
+import { Mesa } from "../types/mesa.type";
 
-interface MesaProps {
-  status: 'ocupada' | 'disponivel' | 'aguardando'
-}
-
-export const Mesa: React.FC<MesaProps> = ({ status }) => {
+export const CardMesa: React.FC<Mesa> = ({ status, numeracao, pedidos, id_mesa }) => {
   const theme = useTheme();
+  const navigator = useNavigation<NavigationProp<RootStackParamList>>();
 
   return (
     <Card
       style={[styles.card, {
         backgroundColor: (status === 'disponivel') ? 'white' : (status === 'ocupada') ? theme['color-success-600'] : theme['color-danger-400']
       }]}
+      onPress={() => {
+        navigator.navigate('Comanda', {
+          idMesa: id_mesa
+        })
+      }}
     >
       <View style={styles.txtLabel}>
         {
@@ -34,7 +39,7 @@ export const Mesa: React.FC<MesaProps> = ({ status }) => {
           {status.toUpperCase()}
         </Text>
       </View>
-      <Text style={{ textAlign: 'center' }} category="h4">MESA 01</Text>
+      <Text style={{ textAlign: 'center' }} category="h4">MESA {(numeracao < 10)?`0${numeracao}`:`${numeracao}`}</Text>
 
     </Card>
   )

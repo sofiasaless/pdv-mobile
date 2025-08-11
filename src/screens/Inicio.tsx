@@ -12,11 +12,38 @@ import {
   View,
 } from "react-native";
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
-import { Mesa } from "../components/Mesa";
+import { CardMesa } from "../components/CardMesa";
 import { QuantidadeInfo } from "../components/QuantidadeInfo";
+import { useCallback, useEffect, useState } from "react";
+import { Mesa, StatusMesa } from "../types/mesa.type";
+import { mesaFirestore } from "../firestore/mesa.firestore";
+import { useFocusEffect } from "@react-navigation/native";
 
 export default function Inicio() {
   const theme = useTheme();
+
+  const [mesas, setMesas] = useState<Mesa[]>([])
+  const [qtdMesas, setQtdMesas] = useState<number[]>([])
+
+  async function carregarMesas() {
+    await mesaFirestore.recuperarMesas().then((dados) => {
+      if (dados != undefined) {
+        setMesas(dados)
+      }
+    })
+
+    await mesaFirestore.contarMesas().then((dados) => {
+      setQtdMesas(dados ?? [])
+    })
+  }
+
+
+  useFocusEffect(
+    useCallback(() => {
+      carregarMesas()
+    },[])
+  );
+
 
   return (
     <>
@@ -36,7 +63,8 @@ export default function Inicio() {
           </View>
 
           <View style={[styles.conteudoUmInterno]}>
-            <Button size="medium" style={{ padding: 0, justifyContent: 'center', alignItems: 'center' }}>
+            <Button size="medium" style={{ padding: 0, justifyContent: 'center', alignItems: 'center' }}
+            >
               <MaterialIcons name="settings" size={80} color="white" />
             </Button>
           </View>
@@ -46,9 +74,9 @@ export default function Inicio() {
         {/* renderização das mesas */}
         <View style={[styles.conteudoDois, { backgroundColor: theme['color-primary-100'] }]}>
           <View style={styles.infosMesa}>
-            <QuantidadeInfo tema="primary" descricao="livres" quantidade={20} />
-            <QuantidadeInfo tema="success" descricao="ocupadas" quantidade={2} />
-            <QuantidadeInfo tema="danger" descricao="aguardando" quantidade={3} />
+            <QuantidadeInfo tema="primary" descricao={`livres`} quantidade={qtdMesas[0]} />
+            <QuantidadeInfo tema="success" descricao="ocupadas" quantidade={qtdMesas[1]} />
+            <QuantidadeInfo tema="danger" descricao="aguardando" quantidade={qtdMesas[3]} />
           </View>
 
           <Divider />
@@ -61,8 +89,8 @@ export default function Inicio() {
 
           <FlatList
             data={mesas}
-            keyExtractor={(item) => item.id}
-            renderItem={({ item }) => <Mesa status={item.status as 'ocupada' | 'disponivel' | 'aguardando'} />}
+            // keyExtractor={Math.random()}
+            renderItem={({ item }) => <CardMesa numeracao={item.numeracao} pedidos={[]} id_mesa={item.id_mesa} status={item.status as StatusMesa} />}
             numColumns={2}
             columnWrapperStyle={{
               gap: 10,

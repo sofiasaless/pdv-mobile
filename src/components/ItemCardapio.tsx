@@ -1,20 +1,61 @@
-import { Button, CheckBox, Text, useTheme } from "@ui-kitten/components"
-import { StyleSheet, View } from "react-native"
+import { Button, Text, useTheme } from "@ui-kitten/components"
+import { StyleSheet, TouchableOpacity } from "react-native"
 import { Produto } from "../types/produto.type"
+import { useItensPedido } from "../context/ItensPedidoContext";
+import { useState } from "react";
+import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 
-export const ItemCardapio: React.FC<Produto> = ({ id_produto, descricao, preco }) => {
+interface ItemCardapioProps {
+  objeto: Produto,
+  abrirModalObs?: (produto: Produto) => void;
+}
+
+export const ItemCardapio: React.FC<ItemCardapioProps> = ({ objeto, abrirModalObs }) => {
   const theme = useTheme();
 
+  const [selecionado, setSelecionado] = useState<boolean>(false)
+
+  const { adicionarItemPedido, removerItemPedido } = useItensPedido()
+
+  const selecionarItem = (acao: boolean) => {
+    if (acao) {
+      adicionarItemPedido({
+        id: Math.random(),
+        descricao: objeto.descricao,
+        preco: objeto.preco,
+        quantidade: 1,
+        total: 0,
+        horario_adicao: new Date,
+        id_produto: objeto.id_produto,
+        observacao: ''
+      })
+
+      abrirModalObs?.(objeto)
+    } else {
+      removerItemPedido(objeto.id_produto ?? "")
+    }
+  }
+
   return (
-    <View style={[styles.container, { backgroundColor: theme['color-primary-700']}]}>
-      <Text style={{ flex: 1, color: 'white' }} category="s1">{descricao}</Text>
-      <Text style={{ color: 'white' }} category="s2">R$ {(preco).toFixed(2)}</Text>
-      <View style={styles.btnQtdView}>
-        <Button size="tiny">-</Button>
-        <Text style={{ color: 'white', paddingInline: '2%' }}>1</Text>
-        <Button size="tiny">+</Button>
-      </View>
-    </View>
+    <TouchableOpacity style={[styles.container, { backgroundColor: theme[(selecionado) ? 'color-primary-900' : 'color-primary-700'] }]}
+      onPress={() => {
+        setSelecionado(!selecionado)
+        selecionarItem(!selecionado)
+      }}
+    >
+      <Text style={{ flex: 1, color: 'white' }} category="s1">{objeto.descricao}</Text>
+      <Text style={{ color: 'white' }} category="s2">R$ {(objeto.preco).toFixed(2)}</Text>
+      {/* botao para  adicionar observacao ao item do pedido*/}
+      {/* <Button
+        size="tiny"
+        style={{
+          display: (selecionado) ? 'flex' : 'none'
+        }}
+        onPress={() => abrirModalObs?.(objeto)}
+        accessoryLeft={<MaterialCommunityIcons name="note-edit-outline" size={13} color="white" />}
+      >
+      </Button> */}
+    </TouchableOpacity>
   )
 }
 
