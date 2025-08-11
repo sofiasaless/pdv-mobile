@@ -10,7 +10,7 @@ import {
   Card,
   Modal
 } from "@ui-kitten/components";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
   StyleSheet,
   View,
@@ -21,13 +21,18 @@ import {
   TouchableWithoutFeedback,
   Image
 } from "react-native";
+import { authFirebase } from "../auth/auth.firebase";
+import { NavigationProp, useNavigation } from "@react-navigation/native";
+import { RootStackParamList } from "../routes/StackRoutes";
 
 export default function Login() {
   const theme = useTheme();
 
   const operadores = ['Garçom', 'Gerente'];
   const [selectedIndex, setSelectedIndex] = useState<IndexPath>(new IndexPath(0));
-  const [value, setValue] = useState('');
+  const [senha, setSenha] = useState('');
+
+  const [acaoModal, setAcaoModal] = useState<'ERRO' | 'SUCESSO'>('ERRO')
 
   // para o modal
   const [visibleModal, setVisibleModal] = useState(false);
@@ -76,20 +81,37 @@ export default function Login() {
             label='Senha'
             placeholder='Insira a senha do operador'
             status="primary"
-            value={value}
-            onChangeText={setValue}
+            value={senha}
+            onChangeText={setSenha}
           />
 
-          <Button status="primary" size="medium" onPress={() => setVisibleModal(true)}>
-            Entrar
-          </Button>
+          <Button status="primary" size="medium"
+            onPress={async () => {
+              if (selectedIndex.row === 1) {
+                if (await authFirebase.loginUsuario({ tipo: 'GERENTE', senha: senha })) {
+                  setAcaoModal('SUCESSO')
+                }
+              } else {
+                if (await authFirebase.loginUsuario({ tipo: 'GARCOM', senha: senha })) {
+                  setAcaoModal('SUCESSO')
+                }
+              }
+              setVisibleModal(true)
+            }}
+          >Entrar</Button>
+          {/* <Button
+            size="tiny"
+            onPress={async () => {
+              await authFirebase.logoutUsuario()
+            }}
+          >logout</Button> */}
         </View>
       </KeyboardAvoidingView>
 
-      <ModalAlerta 
-        visivel={visibleModal} 
-        fechar={() => setVisibleModal(false)} 
-        acao="ERRO"
+      <ModalAlerta
+        visivel={visibleModal}
+        fechar={() => setVisibleModal(false)}
+        acao={acaoModal}
       />
     </>
   );
@@ -98,10 +120,12 @@ export default function Login() {
 interface ModalAlertaProps {
   visivel: boolean;
   fechar: () => void;
-  acao: 'SUCEDIDO' | 'ERRO'
+  acao: 'ERRO' | 'SUCESSO'
 }
 
 export const ModalAlerta: React.FC<ModalAlertaProps> = ({ visivel, fechar, acao }) => {
+
+  const navigator = useNavigation<NavigationProp<RootStackParamList>>();
 
   return (
     <Modal
@@ -112,18 +136,26 @@ export const ModalAlerta: React.FC<ModalAlertaProps> = ({ visivel, fechar, acao 
       <Card disabled={true}>
         <Text>
           {
-            (acao === 'SUCEDIDO')?
-            'Login efetuado com sucesso!'
-            :
-            'Ocorreu um erro, por favor tente novamente!'
+            (acao === 'SUCESSO') ?
+              'Login efetuado com sucesso!'
+              :
+              'Ocorreu um erro, por favor tente novamente!'
           }
         </Text>
-        <Button status={(acao === 'SUCEDIDO')?'success':'danger'} appearance="outline" onPress={fechar}>
+        <Button status={(acao === 'SUCESSO') ? 'success' : 'danger'} appearance="outline"
+          onPress={() => {
+            if (acao === 'SUCESSO') {
+              navigator.navigate('Inicio')
+            } else {
+              fechar();
+            }
+          }}
+        >
           {
-            (acao === 'SUCEDIDO')?
-            'Prosseguir'
-            :
-            'Tentar novamente'
+            (acao === 'SUCESSO') ?
+              'Prosseguir'
+              :
+              'Tentar novamente'
           }
         </Button>
       </Card>

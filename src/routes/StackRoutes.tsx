@@ -3,7 +3,8 @@ import { StackNavigationProp } from '@react-navigation/stack';
 import { RouteProp } from '@react-navigation/native';
 
 export type RootStackParamList = {
-  Home: undefined;
+  Login: undefined;
+  Inicio: undefined;
   Comanda: { idMesa: string | undefined };
   Cardapio: { idMesa: string | undefined };
 };
@@ -14,13 +15,20 @@ import { enableScreens } from 'react-native-screens';
 import Inicio from '../screens/Inicio';
 import { Comanda } from '../screens/Comanda';
 import { Cardapio } from '../screens/Cardapio';
+import Login from '../screens/Login';
 enableScreens();
 
 export default function StackRoutes() {
   return (
     <Stack.Navigator>
       <Stack.Screen
-        name="Home"
+        name="Login"
+        component={Login}
+        options={{ headerShown: false }}
+      />
+
+      <Stack.Screen
+        name="Inicio"
         component={Inicio}
         options={{ headerShown: false }}
       />
