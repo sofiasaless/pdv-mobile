@@ -1,4 +1,4 @@
-import { addDoc, collection, doc, getDoc, getDocs, orderBy, query } from "firebase/firestore";
+import { addDoc, collection, deleteDoc, doc, getDoc, getDocs, orderBy, query } from "firebase/firestore";
 import { firestore } from "../config/firebase.config";
 import { Produto } from "../types/produto.type";
 
@@ -32,6 +32,16 @@ export const cardapioFirestore = {
       console.log('erro ao adicionar uma mesa ', e)
     }
 
+  },
+
+  excluirProduto: async (id_produto: string) => {
+    try {
+      const docRef = doc(firestore, nomeColecao, id_produto);
+      await deleteDoc(docRef);
+      console.log('produto excluido com sucesso')
+    } catch (error) {
+      console.log('erro ao excluir produto do cardapio ', error)
+    }
   }
 
 }
