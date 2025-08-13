@@ -3,12 +3,12 @@ import {
   Button,
   CheckBox,
   Divider,
-  Text,
   useTheme,
 } from "@ui-kitten/components";
 import {
   FlatList,
   StyleSheet,
+  Text,
   View,
 } from "react-native";
 import { LabelInfo } from "../components/LabelInfo";
@@ -69,15 +69,15 @@ export const Comanda: React.FC<Props> = ({ route }) => {
         <View style={styles.conteudoUm}>
 
           <View style={[styles.conteudoUmInterno]}>
-            <Text style={[styles.text, { color: theme['color-primary-200'] }]} category='h4'>
+            <Text style={[styles.text, { color: theme['color-primary-200'], fontSize: 30 }]}>
               MESA {mesa?.numeracao}
             </Text>
             <LabelInfo descricao={mesa?.status as StatusMesa ?? ""} tamanhoLetra="s2" />
           </View>
 
           <View style={[styles.conteudoInternoDois, { backgroundColor: theme['color-warning-300'] }]}>
-            <Text style={{ color: theme['color-warning-900'] }} category="s1">TOTAL</Text>
-            <Text style={{ color: theme['color-warning-900'] }} category="s1">R$ {total.toFixed(2)}</Text>
+            <Text style={{ color: theme['color-warning-900'], fontSize: 18 }} >TOTAL</Text>
+            <Text style={{ color: theme['color-warning-900'], fontSize: 18 }} >R$ {total.toFixed(2)}</Text>
           </View>
 
         </View>
@@ -116,10 +116,10 @@ export const Comanda: React.FC<Props> = ({ route }) => {
             <Button
               accessoryRight={<Ionicons name="receipt" size={20} color="white" />}
               onPress={async () => {
-                // await mesaFirestore.atualizarMesa('bloqueada', id ?? '')
+                await mesaFirestore.atualizarMesa('bloqueada', id ?? '')
                 // navigator.goBack();
 
-                await authFirebase.logoutUsuario()
+                // await authFirebase.logoutUsuario()
               }}
             >Encerrar conta</Button>
 
@@ -153,6 +153,9 @@ export const Comanda: React.FC<Props> = ({ route }) => {
           >
             <Button status="success"
               accessoryRight={<MaterialIcons name="payments" size={20} color="white" />}
+              onPress={async () => {
+                await mesaFirestore.confirmarPagamento('disponivel', id ?? "")
+              }}
             >Confirmar pagamento</Button>
 
             <View style={styles.btnsOtherView}>

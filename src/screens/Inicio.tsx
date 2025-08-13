@@ -3,12 +3,12 @@ import {
   Button,
   CheckBox,
   Divider,
-  Text,
   useTheme,
 } from "@ui-kitten/components";
 import {
   FlatList,
   StyleSheet,
+  Text,
   View,
 } from "react-native";
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
@@ -59,10 +59,10 @@ export default function Inicio() {
         <View style={styles.conteudoUm}>
 
           <View style={[styles.conteudoUmInterno]}>
-            <Text style={[styles.text, { color: theme['color-primary-200'] }]} category='h5'>
+            <Text style={[styles.text, { color: theme['color-primary-200'], fontSize: 20, fontWeight: 'bold' }]}>
               Bem-vindo ao Up! PDV
             </Text>
-            <Text style={[styles.text, { color: theme['color-primary-200'] }]} category='caption'>
+            <Text style={[styles.text, { color: theme['color-primary-200'], fontSize: 15 }]}>
               Operador {usuario?.tipo}
             </Text>
           </View>
@@ -73,9 +73,9 @@ export default function Inicio() {
                 padding: 0, justifyContent: 'center', alignItems: 'center',
                 display: (usuario?.role.includes('GERENTE')) ? 'flex' : 'none'
               }}
-            // onPress={async () => {
-            //   await authFirebase.logoutUsuario();
-            // }}
+              onPress={async () => {
+                await authFirebase.logoutUsuario();
+              }}
             >
               <MaterialIcons name="settings" size={80} color="white" />
             </Button>
@@ -106,7 +106,7 @@ export default function Inicio() {
             numColumns={2}
             columnWrapperStyle={{
               gap: 10,
-              justifyContent: "flex-start",
+              justifyContent: "center",
             }}
             contentContainerStyle={{
               gap: 10,

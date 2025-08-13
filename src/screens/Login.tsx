@@ -3,14 +3,13 @@ import {
   IndexPath,
   Select,
   SelectItem,
-  Text,
   useTheme,
   Input,
   Button,
   Card,
   Modal
 } from "@ui-kitten/components";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import {
   StyleSheet,
   View,
@@ -19,10 +18,11 @@ import {
   ScrollView,
   Keyboard,
   TouchableWithoutFeedback,
-  Image
+  Image,
+  Text
 } from "react-native";
 import { authFirebase } from "../auth/auth.firebase";
-import { NavigationProp, useNavigation } from "@react-navigation/native";
+import { NavigationProp, useFocusEffect, useNavigation } from "@react-navigation/native";
 import { RootStackParamList } from "../routes/StackRoutes";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
@@ -40,6 +40,23 @@ export default function Login() {
 
   const navigator = useNavigation<NavigationProp<RootStackParamList>>();
 
+  // const verificarEstadoUsuario = async () => {
+  //   if (await authFirebase.verificarLogin() != undefined) {
+  //     if (navigator.canGoBack()) {
+  //       navigator.goBack();
+  //     } else {
+  //       navigator.navigate('Inicio')
+  //     }
+
+  //   }
+  // }
+
+  // useFocusEffect(
+  //   useCallback(() => {
+  //     verificarEstadoUsuario()
+  //   }, [])
+  // );
+
   return (
     <>
       <KeyboardAvoidingView
@@ -53,10 +70,10 @@ export default function Login() {
             source={icone}
           />
 
-          <Text style={[styles.text, { color: theme['color-primary-200'] }]} category='h2'>
+          <Text style={[styles.text, { color: theme['color-primary-200'], fontSize: 30 }]} >
             Bem-vindo ao Up! PDV
           </Text>
-          <Text style={[styles.text, { color: theme['color-primary-200'] }]} category='caption'>
+          <Text style={[styles.text, { color: theme['color-primary-200'], fontSize: 15 }]} >
             Insira suas credenciais para prosseguir.
           </Text>
         </View>
@@ -90,13 +107,19 @@ export default function Login() {
 
           <Button status="primary" size="medium"
             onPress={async () => {
+              console.log(selectedIndex.row)
+              console.log(senha)
               if (selectedIndex.row === 1) {
                 if (await authFirebase.loginUsuario({ tipo: 'GERENTE', senha: senha })) {
                   setAcaoModal('SUCESSO')
+                } else {
+                  setAcaoModal('ERRO')
                 }
               } else {
                 if (await authFirebase.loginUsuario({ tipo: 'GARCOM', senha: senha })) {
                   setAcaoModal('SUCESSO')
+                } else {
+                  setAcaoModal('ERRO')
                 }
               }
               setVisibleModal(true)
@@ -148,6 +171,7 @@ export const ModalAlerta: React.FC<ModalAlertaProps> = ({ visivel, fechar, acao 
         <Button status={(acao === 'SUCESSO') ? 'success' : 'danger'} appearance="outline"
           onPress={() => {
             if (acao === 'SUCESSO') {
+              fechar();
               navigator.navigate('Inicio')
             } else {
               fechar();

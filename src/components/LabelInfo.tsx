@@ -1,6 +1,6 @@
-import { Card, Layout, Text, useTheme } from "@ui-kitten/components";
+import { Card, Layout, useTheme } from "@ui-kitten/components";
 import React, { useEffect, useState } from "react";
-import { StyleSheet, View } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
 import { StatusMesa } from "../types/mesa.type";
 
 interface LabelInfoProps {
@@ -33,12 +33,13 @@ export const LabelInfo: React.FC<LabelInfoProps> = ({ descricao, tamanhoLetra })
         backgroundColor: theme[backgroundColor]
       }]}
     >
-      <Text category={tamanhoLetra}
+      <Text
         style={{
-          color: theme[textColor]
+          color: theme[textColor],
+          fontSize: 13
         }}
       >{descricao.toUpperCase()}</Text>
-    </View>
+    </View >
   );
 }
 

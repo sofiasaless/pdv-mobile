@@ -1,5 +1,5 @@
-import { Button, CheckBox, Text, useTheme } from "@ui-kitten/components"
-import { StyleSheet, View } from "react-native"
+import { Button, CheckBox, useTheme } from "@ui-kitten/components"
+import { StyleSheet, Text, View } from "react-native"
 import { ItemPedido } from "../types/itemPedido.type";
 import { useState } from "react";
 import { useItensPedido } from "../context/ItensPedidoContext";
@@ -17,9 +17,9 @@ export const ItemConfirmacao: React.FC<ItemConfirmacaoProps> = ({ objeto }) => {
   return (
     <View style={[styles.container, { backgroundColor: theme['color-basic-400']}]}>
       <View style={{flex: 1}}>
-        <Text category="s2">{objeto.descricao}</Text>
-        <Text category="s2">R$ {(objeto.preco).toFixed(2)}</Text>
-        <Text category="c1">{objeto.observacao}</Text>
+        <Text style={{ fontSize: 15}}>{objeto.descricao}</Text>
+        <Text style={{ fontSize: 13}}>R$ {(objeto.preco).toFixed(2)}</Text>
+        <Text style={{ fontSize: 13}}>{objeto.observacao}</Text>
       </View>
       <View style={styles.btnQtdView}>
         <Button size="tiny"

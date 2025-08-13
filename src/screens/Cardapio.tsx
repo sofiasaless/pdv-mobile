@@ -6,12 +6,12 @@ import {
   Divider,
   Input,
   Modal,
-  Text,
   useTheme,
 } from "@ui-kitten/components";
 import {
   FlatList,
   StyleSheet,
+  Text,
   View,
 } from "react-native";
 import Ionicons from '@expo/vector-icons/Ionicons';
@@ -80,8 +80,8 @@ export const Cardapio: React.FC<Props> = ({ route }) => {
             <Input
               placeholder='Pesquisar por produto'
               value={pesquisa}
-              status="primary"
-              appearance="outline"
+              // appearance="outline"
+              // size="medium"
               accessoryRight={<MaterialIcons name="search" size={24} color="#274BDB" />}
               onChangeText={nextValue => setPesquisa(nextValue)}
             />
@@ -149,7 +149,7 @@ const ModalConfirmacao: React.FC<ModalConfirmacaoProps> = ({ visible, fechar, id
         onBackdropPress={fechar}
       >
         <Card disabled>
-          <Text style={{ textAlign: 'center' }} category="label">
+          <Text style={{ textAlign: 'center', fontSize: 15 }}>
             Revise os itens do pedido
           </Text>
 
@@ -204,7 +204,7 @@ const ModalObservacao: React.FC<ModalObservacaoProps> = ({ visible, fechar, prod
         onBackdropPress={fechar}
       >
         <Card disabled>
-          <Text style={{ textAlign: 'center' }} category="label">
+          <Text style={{ textAlign: 'center', fontSize: 15 }}>
             Observação para {produto.descricao}
           </Text>
 
@@ -213,7 +213,6 @@ const ModalObservacao: React.FC<ModalObservacaoProps> = ({ visible, fechar, prod
             placeholder="Digite aqui..."
             value={observacao}
             onChangeText={setObservacao}
-            multiline
           />
 
           <Button

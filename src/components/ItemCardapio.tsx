@@ -1,5 +1,5 @@
-import { Button, Text, useTheme } from "@ui-kitten/components"
-import { StyleSheet, TouchableOpacity } from "react-native"
+import { Button, useTheme } from "@ui-kitten/components"
+import { StyleSheet, Text, TouchableOpacity } from "react-native"
 import { Produto } from "../types/produto.type"
 import { useItensPedido } from "../context/ItensPedidoContext";
 import { useState } from "react";
@@ -43,8 +43,8 @@ export const ItemCardapio: React.FC<ItemCardapioProps> = ({ objeto, abrirModalOb
         selecionarItem(!selecionado)
       }}
     >
-      <Text style={{ flex: 1, color: 'white' }} category="s1">{objeto.descricao}</Text>
-      <Text style={{ color: 'white' }} category="s2">R$ {(objeto.preco).toFixed(2)}</Text>
+      <Text style={{ flex: 1, color: 'white', fontSize: 15 }}>{objeto.descricao}</Text>
+      <Text style={{ color: 'white', fontSize: 15 }}>R$ {(objeto.preco).toFixed(2)}</Text>
       {/* botao para  adicionar observacao ao item do pedido*/}
       {/* <Button
         size="tiny"
