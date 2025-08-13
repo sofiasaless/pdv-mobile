@@ -2,44 +2,55 @@ import { addDoc, arrayRemove, arrayUnion, collection, doc, getCountFromServer, g
 import { firestore } from "../config/firebase.config";
 import { Mesa, StatusMesa } from "../types/mesa.type";
 import { ItemPedido } from "../types/itemPedido.type";
+import { HistoricoMesa } from "../types/historicoMesa.type";
 
-const nomeColecao = 'mesas'
+const nomeColecao = 'historicoMesas'
 
-export const mesaFirestore = {
-  recuperarMesas: async () => {
+export const historioFirestore = {
+  registrarHistorico: async (historico: HistoricoMesa) => {
+    try {
+      const docRef = await addDoc(collection(firestore, nomeColecao), historico);
+      console.log("historico criadio com o id: ", docRef.id);
+      return docRef.id
+    } catch (e) {
+      console.log('erro ao adicionar um historico ', e)
+    }
+  },
+
+  recuperarHistorico: async () => {
     try {
       const resultadosQuery = await getDocs(
         query(
           collection(firestore, nomeColecao),
-          orderBy('numeracao', 'asc')
+          orderBy('numeracao', 'desc')
         )
       );
       let listaMesas: any[] = []
 
       resultadosQuery.forEach((doc) => {
         listaMesas.push({
-          id_mesa: doc.id,
+          id_historico: doc.id,
           ...doc.data()
         })
       })
 
-      return listaMesas as Mesa[]
+      return listaMesas as HistoricoMesa[]
     } catch (error) {
       console.log('erro ao recuperar produtos: ', error)
     }
   },
 
-  recuperarMesaPorId: async (id_mesa: string) => {
+  recuperarMesaPorId: async (id_historico: string) => {
     try {
-      const mesaRef = doc(firestore, nomeColecao, id_mesa)
-      const mesaDoc = await getDoc(mesaRef);
+      const historicoRef = doc(firestore, nomeColecao, id_historico)
+      const historicoDoc = await getDoc(historicoRef);
 
-      let mesaObj = {
-        id_mesa: mesaDoc.id,
-        ...mesaDoc.data()
+      let historicoObj = {
+        id_historico: historicoDoc.id,
+        ...historicoDoc.data()
       }
 
-      return mesaObj as Mesa
+      return historicoObj as HistoricoMesa
 
     } catch (error) {
       console.log('ocorreu um erro ao buscar a mesa pelo id ', error)
@@ -104,7 +115,7 @@ export const mesaFirestore = {
         status: status,
       });
 
-      console.log('mesa atualizada com sucesso!')
+      console.log('mesa atualizados com sucesso!')
 
     } catch (error) {
       console.log('erro ao adicionar no pedido ', error)
@@ -120,7 +131,7 @@ export const mesaFirestore = {
         pedidos: []
       });
 
-      console.log('pagamento confirmado com sucesso!')
+      console.log('mesa atualizados com sucesso!')
     } catch (error) {
       console.log('erro ao confirmar pagamento da mesa')
     }

@@ -9,10 +9,11 @@ import { useItensPedido } from "../context/ItensPedidoContext";
 
 interface CardMesaTransferenciaProps {
   objetoMesa: Mesa,
-  id_mesa_origem: string
+  id_mesa_origem: string,
+  disponibilizar: boolean
 }
 
-export const CardMesaTransferencia: React.FC<CardMesaTransferenciaProps> = ({ objetoMesa, id_mesa_origem }) => {
+export const CardMesaTransferencia: React.FC<CardMesaTransferenciaProps> = ({ objetoMesa, id_mesa_origem, disponibilizar }) => {
   const theme = useTheme();
   const navigator = useNavigation<NavigationProp<RootStackParamList>>();
 
@@ -28,6 +29,9 @@ export const CardMesaTransferencia: React.FC<CardMesaTransferenciaProps> = ({ ob
         try {
           await mesaFirestore.adicionarPedidos(itensPedido, objetoMesa.id_mesa ?? "");
           await mesaFirestore.removerPedidos(itensPedido, id_mesa_origem);
+          if (disponibilizar) {
+            await mesaFirestore.atualizarMesa('disponivel', id_mesa_origem);
+          }
           limparItens()
           Alert.alert('Sucesso', 'Transferência realizada', [
             {

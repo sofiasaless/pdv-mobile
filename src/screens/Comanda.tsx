@@ -25,6 +25,7 @@ import { mesaFirestore } from "../firestore/mesa.firestore";
 import { authFirebase } from "../auth/auth.firebase";
 import { Usuario } from "../types/usuario.type";
 import { useItensPedido } from "../context/ItensPedidoContext";
+import { historioFirestore } from "../firestore/historico.firestore";
 
 type ComandaRouteProp = RouteProp<RootStackParamList, "Comanda">;
 
@@ -53,13 +54,9 @@ export const Comanda: React.FC<Props> = ({ route }) => {
         if (dados != undefined) {
           setMesa(dados)
           setTotal(dados.pedidos.reduce((acc, item) => acc + item.preco * item.quantidade, 0));
-          if (dados.pedidos.length === 0) {
-            await mesaFirestore.atualizarMesa('disponivel', id ?? "")
-          }
         }
       })
     }
-
   }
 
   useFocusEffect(
@@ -143,7 +140,8 @@ export const Comanda: React.FC<Props> = ({ route }) => {
                 accessoryRight={<MaterialCommunityIcons name="transfer" size={20} color="white" />}
                 onPress={() => {
                   navigator.navigate('Transferir', {
-                    idMesa: id
+                    idMesa: id,
+                    disponibilizarMesa: (itensPedido.length === mesa?.pedidos.length) 
                   })
                 }}
               >Transferir itens</Button>
@@ -156,6 +154,10 @@ export const Comanda: React.FC<Props> = ({ route }) => {
                       onPress: async () => {
                         await mesaFirestore.removerPedidos(itensPedido, id ?? "")
                         limparItens()
+                        if (mesa?.pedidos.length === itensPedido.length) {
+                          console.log('mesa ta disponivel')
+                          await mesaFirestore.atualizarMesa('disponivel', id ?? "")
+                        }
                       }
                     }
                   ])
@@ -178,7 +180,25 @@ export const Comanda: React.FC<Props> = ({ route }) => {
             <Button status="success"
               accessoryRight={<MaterialIcons name="payments" size={20} color="white" />}
               onPress={async () => {
-                await mesaFirestore.confirmarPagamento('disponivel', id ?? "")
+                try {
+                  Alert.alert('Confirmar', 'Tem certeza que deseja confirmar o pagamento?', [
+                    {
+                      text: 'Confirmar',
+                      onPress: async () => {
+                        await historioFirestore.registrarHistorico({
+                          encerradoEm: new Date(),
+                          idMesa: id ?? "",
+                          numeracao: mesa?.numeracao ?? 0,
+                          pedidos: mesa?.pedidos ?? [],
+                        })
+                        await mesaFirestore.confirmarPagamento('disponivel', id ?? "")
+                      }
+                    }
+                  ])
+                } catch (error) {
+                  console.log('erro ao confirmar pagamento ', error)
+                }
+                
               }}
             >Confirmar pagamento</Button>
 
@@ -187,7 +207,6 @@ export const Comanda: React.FC<Props> = ({ route }) => {
                 accessoryRight={<MaterialIcons name="menu-open" size={20} color="white" />}
                 onPress={async () => {
                   await mesaFirestore.atualizarMesa('ocupada', id ?? "");
-                  navigator.goBack();
                 }}
               >Reabir mesa</Button>
               <Button status="info" style={{ flex: 1 }}

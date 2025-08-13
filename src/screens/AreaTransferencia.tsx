@@ -33,6 +33,7 @@ export const AreaTransferencia: React.FC<Props> = ( { route } ) => {
   const theme = useTheme();
 
   const id =  route.params.idMesa;
+  const disponibilizarMesa =  route.params.disponibilizarMesa;
 
   const [mesas, setMesas] = useState<Mesa[]>([])
   const [qtdMesas, setQtdMesas] = useState<number[]>([])
@@ -84,7 +85,7 @@ export const AreaTransferencia: React.FC<Props> = ( { route } ) => {
           <FlatList
             data={mesas}
             // keyExtractor={Math.random()}
-            renderItem={({ item }) => <CardMesaTransferencia objetoMesa={item} id_mesa_origem={id ?? ""} />}
+            renderItem={({ item }) => <CardMesaTransferencia objetoMesa={item} id_mesa_origem={id ?? ""} disponibilizar={disponibilizarMesa ?? false} />}
             numColumns={2}
             columnWrapperStyle={{
               gap: 10,

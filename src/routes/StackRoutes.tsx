@@ -7,7 +7,7 @@ export type RootStackParamList = {
   Inicio: undefined;
   Comanda: { idMesa: string | undefined };
   Cardapio: { idMesa: string | undefined };
-  Transferir: { idMesa: string | undefined };
+  Transferir: { idMesa: string | undefined, disponibilizarMesa: boolean | undefined };
 };
 
 const Stack = createStackNavigator<RootStackParamList>();
