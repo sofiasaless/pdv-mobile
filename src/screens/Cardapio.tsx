@@ -6,12 +6,12 @@ import {
   Divider,
   Input,
   Modal,
-  Text,
   useTheme,
 } from "@ui-kitten/components";
 import {
   FlatList,
   StyleSheet,
+  Text,
   View,
 } from "react-native";
 import Ionicons from '@expo/vector-icons/Ionicons';
@@ -28,14 +28,15 @@ import { mesaFirestore } from "../firestore/mesa.firestore";
 type CardapioRouteProp = RouteProp<RootStackParamList, "Cardapio">;
 
 type Props = {
-  route: CardapioRouteProp;
+  route?: CardapioRouteProp;
 };
 
 export const Cardapio: React.FC<Props> = ({ route }) => {
   const theme = useTheme();
 
-  const idMesa = route.params.idMesa;
+  const idMesa = route?.params.idMesa;
 
+  const { limparItens } = useItensPedido()
 
   const [produtosCardapio, setProdutosCardapio] = useState<Produto[]>([]);
 
@@ -51,7 +52,8 @@ export const Cardapio: React.FC<Props> = ({ route }) => {
 
 
   const carregarCardapio = async () => {
-    console.log('renderizando cardapio ')
+    // console.log('renderizando cardapio ')
+    limparItens()
     await cardapioFirestore.recuperarCardapio().then((dados) => {
       if (dados != undefined) {
         setProdutosCardapio(dados)
@@ -60,6 +62,7 @@ export const Cardapio: React.FC<Props> = ({ route }) => {
   }
 
   useEffect(() => {
+    console.log('entrando no useEffec')
     carregarCardapio()
   }, [])
 
@@ -80,8 +83,8 @@ export const Cardapio: React.FC<Props> = ({ route }) => {
             <Input
               placeholder='Pesquisar por produto'
               value={pesquisa}
-              status="primary"
-              appearance="outline"
+              // appearance="outline"
+              // size="medium"
               accessoryRight={<MaterialIcons name="search" size={24} color="#274BDB" />}
               onChangeText={nextValue => setPesquisa(nextValue)}
             />
@@ -149,7 +152,7 @@ const ModalConfirmacao: React.FC<ModalConfirmacaoProps> = ({ visible, fechar, id
         onBackdropPress={fechar}
       >
         <Card disabled>
-          <Text style={{ textAlign: 'center' }} category="label">
+          <Text style={{ textAlign: 'center', fontSize: 15 }}>
             Revise os itens do pedido
           </Text>
 
@@ -204,7 +207,7 @@ const ModalObservacao: React.FC<ModalObservacaoProps> = ({ visible, fechar, prod
         onBackdropPress={fechar}
       >
         <Card disabled>
-          <Text style={{ textAlign: 'center' }} category="label">
+          <Text style={{ textAlign: 'center', fontSize: 15 }}>
             Observação para {produto.descricao}
           </Text>
 
@@ -213,7 +216,6 @@ const ModalObservacao: React.FC<ModalObservacaoProps> = ({ visible, fechar, prod
             placeholder="Digite aqui..."
             value={observacao}
             onChangeText={setObservacao}
-            multiline
           />
 
           <Button

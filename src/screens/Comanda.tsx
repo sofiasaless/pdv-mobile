@@ -3,12 +3,13 @@ import {
   Button,
   CheckBox,
   Divider,
-  Text,
   useTheme,
 } from "@ui-kitten/components";
 import {
+  Alert,
   FlatList,
   StyleSheet,
+  Text,
   View,
 } from "react-native";
 import { LabelInfo } from "../components/LabelInfo";
@@ -21,6 +22,11 @@ import { NavigationProp, RouteProp, useFocusEffect, useNavigation } from "@react
 import { RootStackParamList } from "../routes/StackRoutes";
 import { Mesa, StatusMesa } from "../types/mesa.type";
 import { mesaFirestore } from "../firestore/mesa.firestore";
+import { authFirebase } from "../auth/auth.firebase";
+import { Usuario } from "../types/usuario.type";
+import { useItensPedido } from "../context/ItensPedidoContext";
+import { historicoFirestore } from "../firestore/historico.firestore";
+import { imprimirPedidosDaMesa } from "../util/printer.util";
 
 type ComandaRouteProp = RouteProp<RootStackParamList, "Comanda">;
 
@@ -37,9 +43,15 @@ export const Comanda: React.FC<Props> = ({ route }) => {
   const [mesa, setMesa] = useState<Mesa>()
   const [total, setTotal] = useState<number>(0)
 
+  const [usuario, setUsuario] = useState<Usuario>()
+
+  const { itensPedido, limparItens } = useItensPedido()
+
   const carregarMesa = async () => {
+    setUsuario(await authFirebase.verificarLogin());
+
     if (id != undefined) {
-      await mesaFirestore.recuperarMesaPorId(id).then((dados) => {
+      await mesaFirestore.recuperarMesaPorId(id).then(async (dados) => {
         if (dados != undefined) {
           setMesa(dados)
           setTotal(dados.pedidos.reduce((acc, item) => acc + item.preco * item.quantidade, 0));
@@ -51,7 +63,7 @@ export const Comanda: React.FC<Props> = ({ route }) => {
   useFocusEffect(
     useCallback(() => {
       carregarMesa()
-    }, [id, mesa])
+    }, [id, mesa, usuario])
   );
 
   return (
@@ -63,15 +75,15 @@ export const Comanda: React.FC<Props> = ({ route }) => {
         <View style={styles.conteudoUm}>
 
           <View style={[styles.conteudoUmInterno]}>
-            <Text style={[styles.text, { color: theme['color-primary-200'] }]} category='h4'>
+            <Text style={[styles.text, { color: theme['color-primary-200'], fontSize: 30 }]}>
               MESA {mesa?.numeracao}
             </Text>
             <LabelInfo descricao={mesa?.status as StatusMesa ?? ""} tamanhoLetra="s2" />
           </View>
 
           <View style={[styles.conteudoInternoDois, { backgroundColor: theme['color-warning-300'] }]}>
-            <Text style={{ color: theme['color-warning-900'] }} category="s1">TOTAL</Text>
-            <Text style={{ color: theme['color-warning-900'] }} category="s1">R$ {total.toFixed(2)}</Text>
+            <Text style={{ color: theme['color-warning-900'], fontSize: 18 }} >TOTAL</Text>
+            <Text style={{ color: theme['color-warning-900'], fontSize: 18 }} >R$ {total.toFixed(2)}</Text>
           </View>
 
         </View>
@@ -110,24 +122,85 @@ export const Comanda: React.FC<Props> = ({ route }) => {
             <Button
               accessoryRight={<Ionicons name="receipt" size={20} color="white" />}
               onPress={async () => {
+                let mesaObj = mesa as Mesa
                 await mesaFirestore.atualizarMesa('bloqueada', id ?? '')
-                navigator.goBack();
+
+                await imprimirPedidosDaMesa(mesaObj)
               }}
             >Encerrar conta</Button>
 
-            <View style={styles.btnsOtherView}>
+            <View
+              style={[
+                styles.btnsOtherView,
+                {
+                  display: (usuario?.role.includes('GERENTE') ? 'flex' : 'none')
+                }
+              ]}
+            >
               <Button status="success" style={{ flex: 1 }}
                 accessoryRight={<MaterialCommunityIcons name="transfer" size={20} color="white" />}
+                onPress={() => {
+                  navigator.navigate('Transferir', {
+                    idMesa: id,
+                    disponibilizarMesa: (itensPedido.length === mesa?.pedidos.length)
+                  })
+                }}
               >Transferir itens</Button>
               <Button status="danger" style={{ flex: 1 }}
                 accessoryRight={<MaterialCommunityIcons name="trash-can" size={20} color="white" />}
+                onPress={() => {
+                  Alert.alert('Excluir itens', 'Tem certeza que deseja excluir os itens selecionados?', [
+                    {
+                      text: 'Excluir',
+                      onPress: async () => {
+                        await mesaFirestore.removerPedidos(itensPedido, id ?? "")
+                        limparItens()
+                        if (mesa?.pedidos.length === itensPedido.length) {
+                          console.log('mesa ta disponivel')
+                          await mesaFirestore.atualizarMesa('disponivel', id ?? "")
+                        }
+                      }
+                    }
+                  ])
+                }}
               >Excluir itens</Button>
             </View>
           </View>
 
-          <View style={[styles.btnsView, { display: (mesa?.status === 'bloqueada') ? 'flex' : 'none' }]}>
+          <View
+            style={[
+              styles.btnsView,
+              {
+                display: (mesa?.status === 'bloqueada') ?
+                  (usuario?.role.includes('GERENTE')) ? 'flex' : 'none'
+                  :
+                  'none'
+              }
+            ]}
+          >
             <Button status="success"
               accessoryRight={<MaterialIcons name="payments" size={20} color="white" />}
+              onPress={async () => {
+                try {
+                  Alert.alert('Confirmar', 'Tem certeza que deseja confirmar o pagamento?', [
+                    {
+                      text: 'Confirmar',
+                      onPress: async () => {
+                        await historicoFirestore.registrarHistorico({
+                          encerradoEm: new Date(),
+                          idMesa: id ?? "",
+                          numeracao: mesa?.numeracao ?? 0,
+                          pedidos: mesa?.pedidos ?? [],
+                        })
+                        await mesaFirestore.confirmarPagamento('disponivel', id ?? "")
+                      }
+                    }
+                  ])
+                } catch (error) {
+                  console.log('erro ao confirmar pagamento ', error)
+                }
+
+              }}
             >Confirmar pagamento</Button>
 
             <View style={styles.btnsOtherView}>
@@ -135,11 +208,14 @@ export const Comanda: React.FC<Props> = ({ route }) => {
                 accessoryRight={<MaterialIcons name="menu-open" size={20} color="white" />}
                 onPress={async () => {
                   await mesaFirestore.atualizarMesa('ocupada', id ?? "");
-                  navigator.goBack();
                 }}
               >Reabir mesa</Button>
               <Button status="info" style={{ flex: 1 }}
                 accessoryRight={<MaterialIcons name="print" size={20} color="white" />}
+                onPress={async () => {
+                  let mesaObj = mesa as Mesa
+                  await imprimirPedidosDaMesa(mesaObj)
+                }}
               >Imprimir</Button>
             </View>
           </View>

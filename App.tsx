@@ -5,6 +5,10 @@ import * as eva from '@eva-design/eva';
 import Routes from './src/routes';
 import { ItensPedidoProvider } from './src/context/ItensPedidoContext';
 
+import { enableScreens } from 'react-native-screens';
+
+enableScreens();
+
 export default function App() {
   return (
     <ApplicationProvider {...eva} theme={eva.light}>

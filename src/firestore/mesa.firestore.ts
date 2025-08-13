@@ -1,4 +1,4 @@
-import { addDoc, arrayUnion, collection, doc, getCountFromServer, getDoc, getDocs, orderBy, query, updateDoc, where } from "firebase/firestore";
+import { addDoc, arrayRemove, arrayUnion, collection, doc, getCountFromServer, getDoc, getDocs, orderBy, query, updateDoc, where } from "firebase/firestore";
 import { firestore } from "../config/firebase.config";
 import { Mesa, StatusMesa } from "../types/mesa.type";
 import { ItemPedido } from "../types/itemPedido.type";
@@ -104,10 +104,37 @@ export const mesaFirestore = {
         status: status,
       });
 
-      console.log('mesa atualizados com sucesso!')
+      console.log('mesa atualizada com sucesso!')
 
     } catch (error) {
       console.log('erro ao adicionar no pedido ', error)
+    }
+  },
+
+  confirmarPagamento: async (status: StatusMesa, id_mesa: string) => {
+    try {
+      const mesaRef = doc(firestore, nomeColecao, id_mesa);
+
+      await updateDoc(mesaRef, {
+        status: status,
+        pedidos: []
+      });
+
+      console.log('pagamento confirmado com sucesso!')
+    } catch (error) {
+      console.log('erro ao confirmar pagamento da mesa')
+    }
+  },
+
+  removerPedidos: async (itensPedido: ItemPedido[], id_mesa: string) => {
+    try {
+      const mesaRef = doc(firestore, nomeColecao, id_mesa)
+
+      await updateDoc(mesaRef, {
+        pedidos: arrayRemove(...itensPedido)
+      });
+    } catch (error) {
+      console.log('erro ao remover pedidos da mesa ', error)
     }
   },
 

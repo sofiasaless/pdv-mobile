@@ -31,15 +31,16 @@ export const CardMesa: React.FC<Mesa> = ({ status, numeracao, pedidos, id_mesa }
               :
               <MaterialIcons name="error" size={15} color={theme['color-danger-900']} />
         }
-        <Text category="c1"
+        <Text
           style={{
+            fontSize: 15,
             color: (status === 'disponivel') ? theme['color-primary-900'] : (status === 'ocupada') ? theme['color-success-900'] : theme['color-danger-900']
           }}
         >
           {status.toUpperCase()}
         </Text>
       </View>
-      <Text style={{ textAlign: 'center' }} category="h4">MESA {(numeracao < 10)?`0${numeracao}`:`${numeracao}`}</Text>
+      <Text style={{ textAlign: 'center', fontSize: 25 }}>MESA {(numeracao < 10)?`0${numeracao}`:`${numeracao}`}</Text>
 
     </Card>
   )
@@ -54,5 +55,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     gap: 2,
     justifyContent: 'center',
+    alignItems: 'center'
   }
 })

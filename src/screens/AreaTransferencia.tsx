@@ -17,24 +17,32 @@ import { QuantidadeInfo } from "../components/QuantidadeInfo";
 import { useCallback, useEffect, useState } from "react";
 import { Mesa, StatusMesa } from "../types/mesa.type";
 import { mesaFirestore } from "../firestore/mesa.firestore";
-import { NavigationProp, useFocusEffect, useNavigation } from "@react-navigation/native";
+import { RouteProp, useFocusEffect } from "@react-navigation/native";
 import { authFirebase } from "../auth/auth.firebase";
 import { Usuario } from "../types/usuario.type";
+import { CardMesaTransferencia } from "../components/CardMesaTransferencia";
 import { RootStackParamList } from "../routes/StackRoutes";
 
-export default function Inicio() {
+type AreaTransferenciaProp = RouteProp<RootStackParamList, "Transferir">;
+
+type Props = {
+  route: AreaTransferenciaProp;
+};
+
+export const AreaTransferencia: React.FC<Props> = ( { route } ) => {
   const theme = useTheme();
+
+  const id =  route.params.idMesa;
+  const disponibilizarMesa =  route.params.disponibilizarMesa;
 
   const [mesas, setMesas] = useState<Mesa[]>([])
   const [qtdMesas, setQtdMesas] = useState<number[]>([])
   const [usuario, setUsuario] = useState<Usuario>()
 
-  const navigator = useNavigation<NavigationProp<RootStackParamList>>();
-
-  async function carregarMesas() {
+  async function carregarMesasDeTransferencia() {
     await mesaFirestore.recuperarMesas().then((dados) => {
       if (dados != undefined) {
-        setMesas(dados)
+        setMesas(dados.filter(item => item.id_mesa !== id))
       }
     })
 
@@ -48,7 +56,7 @@ export default function Inicio() {
 
   useFocusEffect(
     useCallback(() => {
-      carregarMesas()
+      carregarMesasDeTransferencia()
     }, [usuario])
   );
 
@@ -61,38 +69,10 @@ export default function Inicio() {
 
         <View style={styles.conteudoUm}>
 
-          <View style={[styles.conteudoUmInterno]}>
-            <Text style={[styles.text, { color: theme['color-primary-200'], fontSize: 20, fontWeight: 'bold' }]}>
-              Bem-vindo ao Up! PDV
-            </Text>
-            <Text style={[styles.text, { color: theme['color-primary-200'], fontSize: 15 }]}>
-              Operador {usuario?.tipo}
-            </Text>
-          </View>
-
-          <View style={[styles.conteudoUmInterno]}>
-            <Button size="medium"
-              style={{
-                padding: 0, justifyContent: 'center', alignItems: 'center',
-                display: (usuario?.role.includes('GERENTE')) ? 'flex' : 'none'
-              }}
-              onPress={async () => {
-                navigator.navigate('Configuracoes')
-              }}
-            >
-              <MaterialIcons name="settings" size={80} color="white" />
-            </Button>
-          </View>
-
         </View>
 
         {/* renderização das mesas */}
         <View style={[styles.conteudoDois, { backgroundColor: theme['color-primary-100'] }]}>
-          <View style={styles.infosMesa}>
-            <QuantidadeInfo tema="primary" descricao={`livres`} quantidade={qtdMesas[0]} />
-            <QuantidadeInfo tema="success" descricao="ocupadas" quantidade={qtdMesas[1]} />
-            <QuantidadeInfo tema="danger" descricao="aguardando" quantidade={qtdMesas[2]} />
-          </View>
 
           <Divider />
 
@@ -105,7 +85,7 @@ export default function Inicio() {
           <FlatList
             data={mesas}
             // keyExtractor={Math.random()}
-            renderItem={({ item }) => <CardMesa numeracao={item.numeracao} pedidos={[]} id_mesa={item.id_mesa} status={item.status as StatusMesa} />}
+            renderItem={({ item }) => <CardMesaTransferencia objetoMesa={item} id_mesa_origem={id ?? ""} disponibilizar={disponibilizarMesa ?? false} />}
             numColumns={2}
             columnWrapperStyle={{
               gap: 10,
@@ -132,7 +112,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between'
   },
   conteudoUm: {
-    height: '20%',
+    height: '5%',
     flexDirection: 'row',
     paddingHorizontal: '8%',
     paddingVertical: '10%',
@@ -142,7 +122,7 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end'
   },
   conteudoDois: {
-    height: '80%',
+    height: '90%',
     borderTopEndRadius: 35,
     borderTopStartRadius: 35,
     paddingHorizontal: '8%',
