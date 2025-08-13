@@ -21,6 +21,7 @@ import { NavigationProp, useFocusEffect, useNavigation } from "@react-navigation
 import { authFirebase } from "../auth/auth.firebase";
 import { Usuario } from "../types/usuario.type";
 import { RootStackParamList } from "../routes/StackRoutes";
+import { useItensPedido } from "../context/ItensPedidoContext";
 
 export default function Inicio() {
   const theme = useTheme();
@@ -30,6 +31,7 @@ export default function Inicio() {
   const [usuario, setUsuario] = useState<Usuario>()
 
   const navigator = useNavigation<NavigationProp<RootStackParamList>>();
+  const { limparItens } = useItensPedido()
 
   async function carregarMesas() {
     await mesaFirestore.recuperarMesas().then((dados) => {
@@ -49,6 +51,7 @@ export default function Inicio() {
   useFocusEffect(
     useCallback(() => {
       carregarMesas()
+      limparItens()
     }, [usuario])
   );
 
