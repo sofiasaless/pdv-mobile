@@ -7,7 +7,10 @@ const nomeColecao = 'cardapio'
 export const cardapioFirestore = {
   recuperarCardapio: async () => {
     try {
-      const resultadosQuery = await getDocs(collection(firestore, nomeColecao));
+      const resultadosQuery = await getDocs(query(
+        collection(firestore, nomeColecao),
+        orderBy('descricao', 'asc')
+      ));
       let listaMesas: any[] = []
 
       resultadosQuery.forEach((doc) => {

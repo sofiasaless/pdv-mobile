@@ -1,46 +1,53 @@
 import { Alert, FlatList, StyleSheet, TouchableOpacity, View } from "react-native";
-import { Button, Input, Text } from "@ui-kitten/components";
-import { useCallback, useEffect, useState } from "react";
-import { DocumentData, QueryDocumentSnapshot } from "firebase/firestore";
-import { useFocusEffect } from "@react-navigation/native";
-import MaterialIcons from '@expo/vector-icons/MaterialIcons';
-import { Produto } from "../types/produto.type";
-import { cardapioFirestore } from "../firestore/cardapio.firestore";
-import { ItemCardapioEditar } from "../components/ItemCardapioEditar";
-import { useItensPedido } from "../context/ItensPedidoContext";
-import DateTimePicker from '@react-native-community/datetimepicker';
-import RNDateTimePicker from "@react-native-community/datetimepicker";
+import { Button, Input, Text, useTheme } from "@ui-kitten/components";
+import { historicoFirestore } from "../firestore/historico.firestore";
+import { useState } from "react";
+import { HistoricoMesa } from "../types/historicoMesa.type";
+import { ItemVenda } from "../components/ItemVenda";
+import { somarPedidos, somarVendasDoDia } from "../util/texts.util";
 
 export default function Vendas() {
+  const theme = useTheme()
 
+  const [vendasFiltradas, setVendasFiltradas] = useState<HistoricoMesa[]>([])
 
+  const carregarVendas = async (data: Date) => {
+    let arrayResultados = await historicoFirestore.recuperarHistoricoPorData(new Date)
+    setVendasFiltradas(arrayResultados)
+  }
 
   return (
     <View style={styles.container}>
 
       <View style={styles.areaForm}>
-        <Text category="h6">Vendas diárias e periódicas</Text>
+        <Text category="h6" style={{ textAlign: 'center' }}>Suas vendas diárias</Text>
         <Button
           size="small"
           status="success"
-          appearance="outline"
-        >Vendas de hoje</Button>
+          onPress={() => {
+            carregarVendas(new Date())
+          }}
+        >Ver vendas de hoje</Button>
       </View>
 
 
       <View style={styles.listaVendas}>
-        {/* <FlatList
-          data={produtos}
-          keyExtractor={(item) => item.id_produto ?? item.descricao}
+        <FlatList
+          data={vendasFiltradas}
+          keyExtractor={(item) => item.id_historico ?? (item.encerradoEm).toLocaleString()}
           renderItem={({ item }) => (
-            <ItemCardapioEditar
+            <ItemVenda
               objeto={item}
             />
           )}
           numColumns={1}
           contentContainerStyle={{ gap: 3 }}
-        /> */}
+        />
+      </View>
 
+      <View style={[styles.totalConta, { backgroundColor: theme['color-warning-300'] }]}>
+        <Text style={{ color: theme['color-warning-900'], fontSize: 18 }} >TOTAL</Text>
+        <Text style={{ color: theme['color-warning-900'], fontSize: 18 }} >R$ {somarVendasDoDia(vendasFiltradas).toFixed(2)}</Text>
       </View>
     </View>
   );
@@ -48,8 +55,10 @@ export default function Vendas() {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
+    // flex: 1,
+    width: '100%',
     paddingTop: 15,
+    paddingInline: '5%',
     gap: 15
   },
   areaForm: {
@@ -61,7 +70,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   listaVendas: {
-    height: '40%',
-    gap: 5
+    height: '60%',
+    gap: 5,
+    // backgroundColor: 'red',
+  },
+  totalConta: {
+    justifyContent: 'space-between',
+    flexDirection: 'row',
+    padding: 10,
+    borderRadius: 5
   }
 });
