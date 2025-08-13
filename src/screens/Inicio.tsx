@@ -17,9 +17,10 @@ import { QuantidadeInfo } from "../components/QuantidadeInfo";
 import { useCallback, useEffect, useState } from "react";
 import { Mesa, StatusMesa } from "../types/mesa.type";
 import { mesaFirestore } from "../firestore/mesa.firestore";
-import { useFocusEffect } from "@react-navigation/native";
+import { NavigationProp, useFocusEffect, useNavigation } from "@react-navigation/native";
 import { authFirebase } from "../auth/auth.firebase";
 import { Usuario } from "../types/usuario.type";
+import { RootStackParamList } from "../routes/StackRoutes";
 
 export default function Inicio() {
   const theme = useTheme();
@@ -27,6 +28,8 @@ export default function Inicio() {
   const [mesas, setMesas] = useState<Mesa[]>([])
   const [qtdMesas, setQtdMesas] = useState<number[]>([])
   const [usuario, setUsuario] = useState<Usuario>()
+
+  const navigator = useNavigation<NavigationProp<RootStackParamList>>();
 
   async function carregarMesas() {
     await mesaFirestore.recuperarMesas().then((dados) => {
@@ -74,7 +77,7 @@ export default function Inicio() {
                 display: (usuario?.role.includes('GERENTE')) ? 'flex' : 'none'
               }}
               onPress={async () => {
-                await authFirebase.logoutUsuario();
+                navigator.navigate('Configuracoes')
               }}
             >
               <MaterialIcons name="settings" size={80} color="white" />

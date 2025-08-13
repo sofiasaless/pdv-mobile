@@ -25,7 +25,7 @@ import { mesaFirestore } from "../firestore/mesa.firestore";
 import { authFirebase } from "../auth/auth.firebase";
 import { Usuario } from "../types/usuario.type";
 import { useItensPedido } from "../context/ItensPedidoContext";
-import { historioFirestore } from "../firestore/historico.firestore";
+import { historicoFirestore } from "../firestore/historico.firestore";
 import { imprimirPedidosDaMesa } from "../util/printer.util";
 
 type ComandaRouteProp = RouteProp<RootStackParamList, "Comanda">;
@@ -186,7 +186,7 @@ export const Comanda: React.FC<Props> = ({ route }) => {
                     {
                       text: 'Confirmar',
                       onPress: async () => {
-                        await historioFirestore.registrarHistorico({
+                        await historicoFirestore.registrarHistorico({
                           encerradoEm: new Date(),
                           idMesa: id ?? "",
                           numeracao: mesa?.numeracao ?? 0,

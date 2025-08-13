@@ -1,9 +1,9 @@
 import { CheckBox } from "@ui-kitten/components"
 import { StyleSheet, Text, View } from "react-native"
 import { ItemPedido } from "../types/itemPedido.type"
-import dataFirebaseParaDataNormal from "../util/texts.util"
 import { useState } from "react"
 import { useItensPedido } from "../context/ItensPedidoContext"
+import { dataFirebaseParaDataNormal } from "../util/texts.util"
 
 export interface ItemComandaProps {
   indice: number,

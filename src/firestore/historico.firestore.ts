@@ -1,12 +1,10 @@
-import { addDoc, arrayRemove, arrayUnion, collection, doc, getCountFromServer, getDoc, getDocs, orderBy, query, updateDoc, where } from "firebase/firestore";
+import { addDoc, arrayRemove, arrayUnion, collection, doc, DocumentData, endBefore, getCountFromServer, getDoc, getDocs, limit, limitToLast, orderBy, query, QueryDocumentSnapshot, startAfter, updateDoc, where } from "firebase/firestore";
 import { firestore } from "../config/firebase.config";
-import { Mesa, StatusMesa } from "../types/mesa.type";
-import { ItemPedido } from "../types/itemPedido.type";
 import { HistoricoMesa } from "../types/historicoMesa.type";
 
 const nomeColecao = 'historicoMesas'
 
-export const historioFirestore = {
+export const historicoFirestore = {
   registrarHistorico: async (historico: HistoricoMesa) => {
     try {
       const docRef = await addDoc(collection(firestore, nomeColecao), historico);
@@ -40,7 +38,7 @@ export const historioFirestore = {
     }
   },
 
-  recuperarMesaPorId: async (id_historico: string) => {
+  recuperarHistoricoPorId: async (id_historico: string) => {
     try {
       const historicoRef = doc(firestore, nomeColecao, id_historico)
       const historicoDoc = await getDoc(historicoRef);
@@ -57,113 +55,63 @@ export const historioFirestore = {
     }
   },
 
-  recuperarMesasPorStatus: async (status: StatusMesa) => {
+  recuperarHistoricoPorPaginacao: async (
+    limite: number,
+    cursor?: {
+      tipo: "proxima" | "anterior";
+      doc: QueryDocumentSnapshot<DocumentData>;
+    }
+  ): Promise<{ dados: HistoricoMesa[]; primeiroDoc: any; ultimoDoc: any }> => {
     try {
-      const q = query(
-        collection(firestore, nomeColecao),
-        where('status', "==", status)
-      );
+      let q;
+
+      if (cursor?.tipo === "proxima") {
+        q = query(
+          collection(firestore, nomeColecao),
+          orderBy("encerradoEm", "desc"),
+          startAfter(cursor.doc),
+          limit(limite)
+        );
+      } else if (cursor?.tipo === "anterior") {
+        q = query(
+          collection(firestore, nomeColecao),
+          orderBy("encerradoEm", "desc"),
+          endBefore(cursor.doc),
+          limitToLast(limite)
+        );
+      } else {
+        q = query(
+          collection(firestore, nomeColecao),
+          orderBy("encerradoEm", "desc"),
+          limit(limite)
+        );
+      }
 
       const snapshot = await getDocs(q);
-      let mesasEncontradas: any[] = []
 
-      snapshot.docs.map((mesa) => {
-        mesasEncontradas.push({
-          id_mesa: mesa.id,
-          ...mesa.data()
-        })
-      })
-
-      return mesasEncontradas as Mesa[]
-    } catch (error) {
-      console.log('ocorreu um erro ao filtrar as mesas por status ', error)
-    }
-  },
-
-  registrarMesa: async (mesa: Mesa) => {
-    try {
-      const docRef = await addDoc(collection(firestore, nomeColecao), mesa);
-      console.log("mesa criada com o id: ", docRef.id);
-      return docRef.id
-    } catch (e) {
-      console.log('erro ao adicionar uma mesa ', e)
-    }
-
-  },
-
-  adicionarPedidos: async (itensPedido: ItemPedido[], id_mesa: string) => {
-    try {
-      const mesaRef = doc(firestore, nomeColecao, id_mesa);
-
-      await updateDoc(mesaRef, {
-        pedidos: arrayUnion(...itensPedido),
-        status: 'ocupada',
+      const listaMesas: HistoricoMesa[] = snapshot.docs.map((doc) => {
+        const data = doc.data();
+        return {
+          id_historico: doc.id,
+          numeracao: data.numeracao,
+          encerradoEm: data.encerradoEm,
+          idMesa: data.idMesa,
+          pedidos: data.pedidos,
+          mesa_reference: data.mesa_reference
+        };
       });
 
-      console.log('pedidos atualizados com sucesso!')
+      const primeiro = snapshot.docs[0] || null;
+      const ultimo = snapshot.docs[snapshot.docs.length - 1] || null;
 
+      return {
+        dados: listaMesas,
+        primeiroDoc: primeiro,
+        ultimoDoc: ultimo
+      };
     } catch (error) {
-      console.log('erro ao adicionar no pedido ', error)
-    }
-  },
-
-  atualizarMesa: async (status: StatusMesa, id_mesa: string) => {
-    try {
-      const mesaRef = doc(firestore, nomeColecao, id_mesa);
-
-      await updateDoc(mesaRef, {
-        status: status,
-      });
-
-      console.log('mesa atualizados com sucesso!')
-
-    } catch (error) {
-      console.log('erro ao adicionar no pedido ', error)
-    }
-  },
-
-  confirmarPagamento: async (status: StatusMesa, id_mesa: string) => {
-    try {
-      const mesaRef = doc(firestore, nomeColecao, id_mesa);
-
-      await updateDoc(mesaRef, {
-        status: status,
-        pedidos: []
-      });
-
-      console.log('mesa atualizados com sucesso!')
-    } catch (error) {
-      console.log('erro ao confirmar pagamento da mesa')
-    }
-  },
-
-  removerPedidos: async (itensPedido: ItemPedido[], id_mesa: string) => {
-    try {
-      const mesaRef = doc(firestore, nomeColecao, id_mesa)
-
-      await updateDoc(mesaRef, {
-        pedidos: arrayRemove(...itensPedido)
-      });
-    } catch (error) {
-      console.log('erro ao remover pedidos da mesa ', error)
-    }
-  },
-
-  contarMesas: async () => {
-    try {
-      const mesaRef = collection(firestore, nomeColecao);
-      const queryConsultaLIVRES = query(mesaRef, where("status", "==", 'disponivel'));
-      const queryConsultaOCUPADAS = query(mesaRef, where("status", "==", 'ocupada'));
-      const queryConsultaBLOQ = query(mesaRef, where("status", "==", 'bloqueada'));
-
-      let qtdOcupacoes: number[] = []
-      qtdOcupacoes.push((await getCountFromServer(queryConsultaLIVRES)).data().count)
-      qtdOcupacoes.push((await getCountFromServer(queryConsultaOCUPADAS)).data().count)
-      qtdOcupacoes.push((await getCountFromServer(queryConsultaBLOQ)).data().count)
-
-      return qtdOcupacoes
-    } catch (error) {
-      console.log('erro ao contar as mesas')
+      console.log("Erro ao recuperar histórico:", error);
+      return { dados: [], primeiroDoc: null, ultimoDoc: null };
     }
   }
 
