@@ -9,11 +9,6 @@ import { cardapioFirestore } from "../firestore/cardapio.firestore";
 import { ItemCardapioEditar } from "../components/ItemCardapioEditar";
 import { useItensPedido } from "../context/ItensPedidoContext";
 
-export interface CursorPaginacao {
-  primeiroDoc: QueryDocumentSnapshot<DocumentData> | null;
-  ultimoDoc: QueryDocumentSnapshot<DocumentData> | null;
-}
-
 export default function Produtos() {
 
   const [descricao, setDescricao] = useState<string>('');

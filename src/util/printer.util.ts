@@ -2,10 +2,11 @@ import * as Sharing from "expo-sharing";
 import * as Print from "expo-print";
 import { Mesa } from "../types/mesa.type";
 import { ItemPedido } from "../types/itemPedido.type";
+import { HistoricoMesa } from "../types/historicoMesa.type";
 
 export async function imprimirPedidosDaMesa(mesa: Mesa) {
   try {
-    const html = gerarHtmlPedidos(mesa);
+    const html = gerarHtmlPedidos(mesa.pedidos, mesa.numeracao);
 
     // Gera o PDF
     const { uri } = await Print.printToFileAsync({ html });
@@ -17,7 +18,7 @@ export async function imprimirPedidosDaMesa(mesa: Mesa) {
   }
 };
 
-function gerarHtmlPedidos(mesa: Mesa) {
+function gerarHtmlPedidos(pedidos: ItemPedido[], numeracao: number) {
   const agora = new Date();
   const dataFormatada = agora.toLocaleDateString("pt-BR");
   const horaFormatada = agora.toLocaleTimeString("pt-BR", {
@@ -26,7 +27,7 @@ function gerarHtmlPedidos(mesa: Mesa) {
   });
   const horarioCompleto = `${dataFormatada} às ${horaFormatada}`;
 
-  const pedidosAgrupados = agruparItens(mesa.pedidos)
+  const pedidosAgrupados = agruparItens(pedidos)
 
   const listaHtml = pedidosAgrupados
     .map(
@@ -66,7 +67,7 @@ function gerarHtmlPedidos(mesa: Mesa) {
       </div>
       <div style="display: flex; flex-direction: row; justify-content: space-between; width: 100%; margin-top: 5mm;">
         <div style="font-size: 12mm; margin-top: 2mm; color: #333; font-weight: bold;">
-          Mesa ${mesa.numeracao}
+          Mesa ${numeracao}
       </div>
       <div style="font-size: 12mm; margin-top: 2mm; color: #333; font-weight: bold;">
         ${horarioCompleto}
@@ -115,3 +116,19 @@ function agruparItens(itens: ItemPedido[]): ItemPedido[] {
 
   return Object.values(agrupados);
 }
+
+
+
+export async function imprimirPedidosDoHistorico(mesa: HistoricoMesa) {
+  try {
+    const html = gerarHtmlPedidos(mesa.pedidos ?? [], mesa.numeracao);
+
+    // Gera o PDF
+    const { uri } = await Print.printToFileAsync({ html });
+
+    // Compartilha
+    await Sharing.shareAsync(uri);
+  } catch (error) {
+    console.error("Erro ao gerar ou compartilhar o PDF:", error);
+  }
+};

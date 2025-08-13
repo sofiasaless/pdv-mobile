@@ -113,6 +113,14 @@ export const historicoFirestore = {
       console.log("Erro ao recuperar histórico:", error);
       return { dados: [], primeiroDoc: null, ultimoDoc: null };
     }
+  },
+
+  recuperarHistoricoDeHoje: async () => {
+    try {
+      
+    } catch (error) {
+      
+    }
   }
 
 }

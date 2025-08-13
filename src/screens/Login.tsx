@@ -40,22 +40,22 @@ export default function Login() {
 
   const navigator = useNavigation<NavigationProp<RootStackParamList>>();
 
-  // const verificarEstadoUsuario = async () => {
-  //   if (await authFirebase.verificarLogin() != undefined) {
-  //     if (navigator.canGoBack()) {
-  //       navigator.goBack();
-  //     } else {
-  //       navigator.navigate('Inicio')
-  //     }
+  const verificarEstadoUsuario = async () => {
+    if (await authFirebase.verificarLogin() != undefined) {
+      if (navigator.canGoBack()) {
+        navigator.goBack();
+      } else {
+        navigator.navigate('Inicio')
+      }
 
-  //   }
-  // }
+    }
+  }
 
-  // useFocusEffect(
-  //   useCallback(() => {
-  //     verificarEstadoUsuario()
-  //   }, [])
-  // );
+  useFocusEffect(
+    useCallback(() => {
+      verificarEstadoUsuario()
+    }, [])
+  );
 
   return (
     <>

@@ -3,6 +3,7 @@ import { StyleSheet } from 'react-native';
 import { Layout, Tab, TabView, Text, useTheme } from '@ui-kitten/components';
 import Historico from './Historico';
 import Produtos from './Produtos';
+import Vendas from './Vendas';
 
 export const Configuracoes = (): React.ReactElement => {
 
@@ -17,26 +18,17 @@ export const Configuracoes = (): React.ReactElement => {
     >
       <Tab title='HISTÓRICO'>
         <Layout style={[styles.tabContainer, { backgroundColor: theme['color-basic-300'] }]}>
-          
           <Historico />
-          {/* <Text category='h5'>
-            USERS
-          </Text> */}
         </Layout>
       </Tab>
       <Tab title='PRODUTOS'>
         <Layout style={[styles.tabContainer, { backgroundColor: theme['color-basic-300'] }]}>
           <Produtos />
-          {/* <Text category='h5'>
-            ORDERS
-          </Text> */}
         </Layout>
       </Tab>
       <Tab title='VENDAS'>
         <Layout style={[styles.tabContainer, { backgroundColor: theme['color-basic-300'] }]}>
-          <Text category='h5'>
-            TRANSACTIONS
-          </Text>
+          <Vendas />
         </Layout>
       </Tab>
     </TabView>

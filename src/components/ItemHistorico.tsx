@@ -4,30 +4,12 @@ import { ItemPedido } from "../types/itemPedido.type"
 import { useState } from "react"
 import { useItensPedido } from "../context/ItensPedidoContext"
 import { dataFirebaseParaDataNormal } from "../util/texts.util"
+import { ItemComandaProps } from "./ItemComanda"
 
-export interface ItemComandaProps {
-  indice: number,
-  objeto: ItemPedido
-}
-
-export const ItemComanda: React.FC<ItemComandaProps> = ({ indice, objeto }) => {
-  const [checked, setChecked] = useState(false);
-
-  const { adicionarItemPedido, removerItemPedido } = useItensPedido()
-
+export const ItemHistorico: React.FC<ItemComandaProps> = ({ indice, objeto }) => {
+  
   return (
-    <View style={[styles.container, { backgroundColor: (indice % 2 === 0) ? '#E4E9F2' : '#C5CEE0' }]}>
-      <CheckBox status='primary'
-        checked={checked}
-        onChange={(nextChecked) => {
-          setChecked(nextChecked)
-          if (nextChecked) {
-            adicionarItemPedido(objeto)
-          } else {
-            removerItemPedido(objeto.id_produto)
-          }
-        }}
-      />
+    <View style={[styles.container, { backgroundColor: '#C5CEE0' }]}>
       <Text style={{ fontSize: 13 }}>{objeto?.quantidade} uni.</Text>
       <View style={{ flex: 1 }}>
         <Text style={{ fontSize: 13 }}>{objeto?.descricao}</Text>

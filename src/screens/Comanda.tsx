@@ -120,6 +120,7 @@ export const Comanda: React.FC<Props> = ({ route }) => {
 
           <View style={[styles.btnsView, { display: (mesa?.status === 'bloqueada') ? 'none' : 'flex' }]}>
             <Button
+              disabled={(mesa?.pedidos.length === 0)}
               accessoryRight={<Ionicons name="receipt" size={20} color="white" />}
               onPress={async () => {
                 let mesaObj = mesa as Mesa
