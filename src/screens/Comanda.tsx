@@ -6,6 +6,7 @@ import {
   useTheme,
 } from "@ui-kitten/components";
 import {
+  Alert,
   FlatList,
   StyleSheet,
   Text,
@@ -23,6 +24,7 @@ import { Mesa, StatusMesa } from "../types/mesa.type";
 import { mesaFirestore } from "../firestore/mesa.firestore";
 import { authFirebase } from "../auth/auth.firebase";
 import { Usuario } from "../types/usuario.type";
+import { useItensPedido } from "../context/ItensPedidoContext";
 
 type ComandaRouteProp = RouteProp<RootStackParamList, "Comanda">;
 
@@ -41,17 +43,23 @@ export const Comanda: React.FC<Props> = ({ route }) => {
 
   const [usuario, setUsuario] = useState<Usuario>()
 
+  const { itensPedido, limparItens } = useItensPedido()
+
   const carregarMesa = async () => {
     setUsuario(await authFirebase.verificarLogin());
 
     if (id != undefined) {
-      await mesaFirestore.recuperarMesaPorId(id).then((dados) => {
+      await mesaFirestore.recuperarMesaPorId(id).then(async (dados) => {
         if (dados != undefined) {
           setMesa(dados)
           setTotal(dados.pedidos.reduce((acc, item) => acc + item.preco * item.quantidade, 0));
+          if (dados.pedidos.length === 0) {
+            await mesaFirestore.atualizarMesa('disponivel', id ?? "")
+          }
         }
       })
     }
+
   }
 
   useFocusEffect(
@@ -133,9 +141,25 @@ export const Comanda: React.FC<Props> = ({ route }) => {
             >
               <Button status="success" style={{ flex: 1 }}
                 accessoryRight={<MaterialCommunityIcons name="transfer" size={20} color="white" />}
+                onPress={() => {
+                  navigator.navigate('Transferir', {
+                    idMesa: id
+                  })
+                }}
               >Transferir itens</Button>
               <Button status="danger" style={{ flex: 1 }}
                 accessoryRight={<MaterialCommunityIcons name="trash-can" size={20} color="white" />}
+                onPress={() => {
+                  Alert.alert('Excluir itens', 'Tem certeza que deseja excluir os itens selecionados?', [
+                    {
+                      text: 'Excluir',
+                      onPress: async () => {
+                        await mesaFirestore.removerPedidos(itensPedido, id ?? "")
+                        limparItens()
+                      }
+                    }
+                  ])
+                }}
               >Excluir itens</Button>
             </View>
           </View>

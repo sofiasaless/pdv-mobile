@@ -36,6 +36,7 @@ export const Cardapio: React.FC<Props> = ({ route }) => {
 
   const idMesa = route?.params.idMesa;
 
+  const { limparItens } = useItensPedido()
 
   const [produtosCardapio, setProdutosCardapio] = useState<Produto[]>([]);
 
@@ -51,7 +52,8 @@ export const Cardapio: React.FC<Props> = ({ route }) => {
 
 
   const carregarCardapio = async () => {
-    console.log('renderizando cardapio ')
+    // console.log('renderizando cardapio ')
+    limparItens()
     await cardapioFirestore.recuperarCardapio().then((dados) => {
       if (dados != undefined) {
         setProdutosCardapio(dados)
@@ -60,6 +62,7 @@ export const Cardapio: React.FC<Props> = ({ route }) => {
   }
 
   useEffect(() => {
+    console.log('entrando no useEffec')
     carregarCardapio()
   }, [])
 

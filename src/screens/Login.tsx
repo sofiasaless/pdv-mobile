@@ -107,8 +107,8 @@ export default function Login() {
 
           <Button status="primary" size="medium"
             onPress={async () => {
-              console.log(selectedIndex.row)
-              console.log(senha)
+              // console.log(selectedIndex.row)
+              // console.log(senha)
               if (selectedIndex.row === 1) {
                 if (await authFirebase.loginUsuario({ tipo: 'GERENTE', senha: senha })) {
                   setAcaoModal('SUCESSO')

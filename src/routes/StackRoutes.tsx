@@ -7,6 +7,7 @@ export type RootStackParamList = {
   Inicio: undefined;
   Comanda: { idMesa: string | undefined };
   Cardapio: { idMesa: string | undefined };
+  Transferir: { idMesa: string | undefined };
 };
 
 const Stack = createStackNavigator<RootStackParamList>();
@@ -16,6 +17,8 @@ import Inicio from '../screens/Inicio';
 import { Comanda } from '../screens/Comanda';
 import { Cardapio } from '../screens/Cardapio';
 import Login from '../screens/Login';
+import { AreaTransferencia } from '../screens/AreaTransferencia';
+
 enableScreens();
 
 export default function StackRoutes() {
@@ -50,6 +53,18 @@ export default function StackRoutes() {
         component={Cardapio}
         options={{
           title: 'Cardápio',
+          headerStyle: {
+            backgroundColor: '#102694',
+          },
+          headerTintColor: 'white',
+        }}
+      />
+
+      <Stack.Screen
+        name="Transferir"
+        component={AreaTransferencia}
+        options={{
+          title: 'Transferência',
           headerStyle: {
             backgroundColor: '#102694',
           },
