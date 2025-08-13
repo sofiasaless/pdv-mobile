@@ -26,6 +26,7 @@ import { authFirebase } from "../auth/auth.firebase";
 import { Usuario } from "../types/usuario.type";
 import { useItensPedido } from "../context/ItensPedidoContext";
 import { historioFirestore } from "../firestore/historico.firestore";
+import { imprimirPedidosDaMesa } from "../util/printer.util";
 
 type ComandaRouteProp = RouteProp<RootStackParamList, "Comanda">;
 
@@ -121,10 +122,10 @@ export const Comanda: React.FC<Props> = ({ route }) => {
             <Button
               accessoryRight={<Ionicons name="receipt" size={20} color="white" />}
               onPress={async () => {
+                let mesaObj = mesa as Mesa
                 await mesaFirestore.atualizarMesa('bloqueada', id ?? '')
-                // navigator.goBack();
 
-                // await authFirebase.logoutUsuario()
+                await imprimirPedidosDaMesa(mesaObj)
               }}
             >Encerrar conta</Button>
 
@@ -141,7 +142,7 @@ export const Comanda: React.FC<Props> = ({ route }) => {
                 onPress={() => {
                   navigator.navigate('Transferir', {
                     idMesa: id,
-                    disponibilizarMesa: (itensPedido.length === mesa?.pedidos.length) 
+                    disponibilizarMesa: (itensPedido.length === mesa?.pedidos.length)
                   })
                 }}
               >Transferir itens</Button>
@@ -198,7 +199,7 @@ export const Comanda: React.FC<Props> = ({ route }) => {
                 } catch (error) {
                   console.log('erro ao confirmar pagamento ', error)
                 }
-                
+
               }}
             >Confirmar pagamento</Button>
 
@@ -211,6 +212,10 @@ export const Comanda: React.FC<Props> = ({ route }) => {
               >Reabir mesa</Button>
               <Button status="info" style={{ flex: 1 }}
                 accessoryRight={<MaterialIcons name="print" size={20} color="white" />}
+                onPress={async () => {
+                  let mesaObj = mesa as Mesa
+                  await imprimirPedidosDaMesa(mesaObj)
+                }}
               >Imprimir</Button>
             </View>
           </View>
