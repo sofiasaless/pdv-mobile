@@ -38,11 +38,8 @@ export default function Inicio() {
     await mesaFirestore.recuperarMesas().then((dados) => {
       if (dados != undefined) {
         setMesas(dados)
+        contarMesas(dados)
       }
-    })
-
-    await mesaFirestore.contarMesas().then((dados) => {
-      setQtdMesas(dados ?? [])
     })
 
     setUsuario(await authFirebase.verificarLogin());
@@ -52,6 +49,20 @@ export default function Inicio() {
     if (await AsyncStorage.getItem('usuario') === null) {
       navigator.navigate('Login')
     }
+  }
+
+  const contarMesas = (mesasQt: Mesa[]) => {
+    let arrayQtdMesas = []
+    arrayQtdMesas.push(
+      mesasQt.filter(mesa => mesa.status === 'disponivel').length
+    )
+    arrayQtdMesas.push(
+      mesasQt.filter(mesa => mesa.status === 'ocupada').length
+    )
+    arrayQtdMesas.push(
+      mesasQt.filter(mesa => mesa.status === 'bloqueada').length
+    )
+    setQtdMesas(arrayQtdMesas)
   }
 
 
