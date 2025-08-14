@@ -22,6 +22,7 @@ import { authFirebase } from "../auth/auth.firebase";
 import { Usuario } from "../types/usuario.type";
 import { RootStackParamList } from "../routes/StackRoutes";
 import { useItensPedido } from "../context/ItensPedidoContext";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function Inicio() {
   const theme = useTheme();
@@ -47,9 +48,16 @@ export default function Inicio() {
     setUsuario(await authFirebase.verificarLogin());
   }
 
+  const verificarEstadoUsuario = async () => {
+    if (await AsyncStorage.getItem('usuario') === null) {
+      navigator.navigate('Login')
+    }
+  }
+
 
   useFocusEffect(
     useCallback(() => {
+      verificarEstadoUsuario();
       carregarMesas()
       limparItens()
     }, [usuario])

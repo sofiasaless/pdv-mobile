@@ -40,20 +40,30 @@ export default function Login() {
 
   const navigator = useNavigation<NavigationProp<RootStackParamList>>();
 
-  const verificarEstadoUsuario = async () => {
-    if (await authFirebase.verificarLogin() != undefined) {
-      if (navigator.canGoBack()) {
-        navigator.goBack();
-      } else {
-        navigator.navigate('Inicio')
-      }
+  // const verificarEstadoUsuario = async () => {
+  //   if (await authFirebase.verificarLogin() != undefined) {
+  //     if (navigator.canGoBack()) {
+  //       navigator.goBack();
+  //     } else {
+  //       navigator.navigate('Inicio')
+  //     }
 
+  //   }
+  // }
+
+  const controleDeDadosPreSalvos = async () => {
+    if (await AsyncStorage.getItem('usuario') != null) {
+      // console.log('removendo usuario pre-salvo...')
+      await AsyncStorage.removeItem('usuario')
+      // console.log(await AsyncStorage.getItem('usuario'))
     }
   }
 
+  
+
   useFocusEffect(
     useCallback(() => {
-      verificarEstadoUsuario()
+      controleDeDadosPreSalvos()
     }, [])
   );
 
