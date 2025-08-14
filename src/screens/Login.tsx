@@ -1,4 +1,4 @@
-const icone = require("../public/icone-logo.png");
+const icone = require("../public/logo.png");
 import {
   IndexPath,
   Select,
@@ -76,7 +76,7 @@ export default function Login() {
       >
         <View style={styles.conteudoUm}>
           <Image
-            style={{ width: 150, height: 150 }}
+            style={{ width: 150, height: 150, borderRadius: 100 }}
             source={icone}
           />
 
