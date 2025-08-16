@@ -7,7 +7,8 @@ interface ItensPedidoContextType {
   removerItemPedido: (id_produto?: string) => void;
   atualizarQuantidadeItem: (item: ItemPedido, acao: 'MENOS' | 'MAIS') => void;
   limparItens: () => void;
-  atualizarObservacao: (id_produto: string, obs: string) => void
+  atualizarObservacao: (id_produto: string, obs: string) => void;
+  isVazio: () => boolean
 }
 
 const ItensPedidoContext = createContext<ItensPedidoContextType | undefined>(undefined);
@@ -45,8 +46,12 @@ export const ItensPedidoProvider = ({ children }: { children: ReactNode }) => {
     );
   };
 
+  const isVazio = () => {
+    return (itensPedido.length === 0)
+  }
+
   return (
-    <ItensPedidoContext.Provider value={{ itensPedido, adicionarItemPedido, removerItemPedido, limparItens, atualizarQuantidadeItem, atualizarObservacao }}
+    <ItensPedidoContext.Provider value={{ itensPedido, adicionarItemPedido, removerItemPedido, limparItens, atualizarQuantidadeItem, atualizarObservacao, isVazio }}
     >
       {children}
     </ItensPedidoContext.Provider>

@@ -9,6 +9,7 @@ export type RootStackParamList = {
   Cardapio: { idMesa: string | undefined };
   Transferir: { idMesa: string | undefined, disponibilizarMesa: boolean | undefined };
   Configuracoes: undefined;
+  HistoricoConta: { idHistorico: string | undefined };
 };
 
 const Stack = createStackNavigator<RootStackParamList>();
@@ -20,6 +21,7 @@ import { Cardapio } from '../screens/Cardapio';
 import Login from '../screens/Login';
 import { AreaTransferencia } from '../screens/AreaTransferencia';
 import { Configuracoes } from '../screens/Configuracoes';
+import { HistoricoConta } from '../screens/HistoricoConta';
 
 enableScreens();
 
@@ -79,6 +81,18 @@ export default function StackRoutes() {
         component={Configuracoes}
         options={{
           title: 'Configurações',
+          headerStyle: {
+            backgroundColor: '#102694',
+          },
+          headerTintColor: 'white',
+        }}
+      />
+
+      <Stack.Screen
+        name="HistoricoConta"
+        component={HistoricoConta}
+        options={{
+          title: 'Configurações - Histórico da conta',
           headerStyle: {
             backgroundColor: '#102694',
           },

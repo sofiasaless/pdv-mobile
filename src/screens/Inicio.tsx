@@ -21,6 +21,8 @@ import { NavigationProp, useFocusEffect, useNavigation } from "@react-navigation
 import { authFirebase } from "../auth/auth.firebase";
 import { Usuario } from "../types/usuario.type";
 import { RootStackParamList } from "../routes/StackRoutes";
+import { useItensPedido } from "../context/ItensPedidoContext";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function Inicio() {
   const theme = useTheme();
@@ -30,25 +32,45 @@ export default function Inicio() {
   const [usuario, setUsuario] = useState<Usuario>()
 
   const navigator = useNavigation<NavigationProp<RootStackParamList>>();
+  const { limparItens } = useItensPedido()
 
   async function carregarMesas() {
     await mesaFirestore.recuperarMesas().then((dados) => {
       if (dados != undefined) {
         setMesas(dados)
+        contarMesas(dados)
       }
-    })
-
-    await mesaFirestore.contarMesas().then((dados) => {
-      setQtdMesas(dados ?? [])
     })
 
     setUsuario(await authFirebase.verificarLogin());
   }
 
+  const verificarEstadoUsuario = async () => {
+    if (await AsyncStorage.getItem('usuario') === null) {
+      navigator.navigate('Login')
+    }
+  }
+
+  const contarMesas = (mesasQt: Mesa[]) => {
+    let arrayQtdMesas = []
+    arrayQtdMesas.push(
+      mesasQt.filter(mesa => mesa.status === 'disponivel').length
+    )
+    arrayQtdMesas.push(
+      mesasQt.filter(mesa => mesa.status === 'ocupada').length
+    )
+    arrayQtdMesas.push(
+      mesasQt.filter(mesa => mesa.status === 'bloqueada').length
+    )
+    setQtdMesas(arrayQtdMesas)
+  }
+
 
   useFocusEffect(
     useCallback(() => {
+      verificarEstadoUsuario();
       carregarMesas()
+      limparItens()
     }, [usuario])
   );
 

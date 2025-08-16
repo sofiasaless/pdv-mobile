@@ -1,4 +1,4 @@
-import { addDoc, arrayRemove, arrayUnion, collection, doc, DocumentData, endBefore, getCountFromServer, getDoc, getDocs, limit, limitToLast, orderBy, query, QueryDocumentSnapshot, startAfter, updateDoc, where } from "firebase/firestore";
+import { addDoc, arrayRemove, arrayUnion, collection, doc, DocumentData, endBefore, getCountFromServer, getDoc, getDocs, limit, limitToLast, orderBy, query, QueryDocumentSnapshot, startAfter, Timestamp, updateDoc, where } from "firebase/firestore";
 import { firestore } from "../config/firebase.config";
 import { HistoricoMesa } from "../types/historicoMesa.type";
 
@@ -112,6 +112,30 @@ export const historicoFirestore = {
     } catch (error) {
       console.log("Erro ao recuperar histórico:", error);
       return { dados: [], primeiroDoc: null, ultimoDoc: null };
+    }
+  },
+
+  recuperarHistoricoPorData: async (data: Date) => {
+    try {
+      const hoje = new Date();
+      hoje.setHours(0, 0, 0, 0);
+
+      const q = query(
+        collection(firestore, nomeColecao),
+        where("encerradoEm", ">=", hoje)
+      );
+
+      const snapshot = await getDocs(q);
+
+      const lista: HistoricoMesa[] = snapshot.docs.map(doc => ({
+        id_historico: doc.id,
+        ...doc.data()
+      })) as HistoricoMesa[];
+
+      return lista;
+    } catch (error) {
+      console.error("Erro ao buscar histórico:", error);
+      return [];
     }
   }
 

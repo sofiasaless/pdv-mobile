@@ -138,19 +138,12 @@ export const mesaFirestore = {
     }
   },
 
-  contarMesas: async () => {
+  contarMesas: async (status: StatusMesa) => {
     try {
       const mesaRef = collection(firestore, nomeColecao);
-      const queryConsultaLIVRES = query(mesaRef, where("status", "==", 'disponivel'));
-      const queryConsultaOCUPADAS = query(mesaRef, where("status", "==", 'ocupada'));
-      const queryConsultaBLOQ = query(mesaRef, where("status", "==", 'bloqueada'));
+      const queryConsulta = query(mesaRef, where("status", "==", status));
 
-      let qtdOcupacoes: number[] = []
-      qtdOcupacoes.push((await getCountFromServer(queryConsultaLIVRES)).data().count)
-      qtdOcupacoes.push((await getCountFromServer(queryConsultaOCUPADAS)).data().count)
-      qtdOcupacoes.push((await getCountFromServer(queryConsultaBLOQ)).data().count)
-
-      return qtdOcupacoes
+      return (await getCountFromServer(queryConsulta)).data().count
     } catch (error) {
       console.log('erro ao contar as mesas')
     }

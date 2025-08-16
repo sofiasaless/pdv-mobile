@@ -1,4 +1,4 @@
-const icone = require("../public/icone-logo.png");
+const icone = require("../public/logo.png");
 import {
   IndexPath,
   Select,
@@ -51,11 +51,21 @@ export default function Login() {
   //   }
   // }
 
-  // useFocusEffect(
-  //   useCallback(() => {
-  //     verificarEstadoUsuario()
-  //   }, [])
-  // );
+  const controleDeDadosPreSalvos = async () => {
+    if (await AsyncStorage.getItem('usuario') != null) {
+      // console.log('removendo usuario pre-salvo...')
+      await AsyncStorage.removeItem('usuario')
+      // console.log(await AsyncStorage.getItem('usuario'))
+    }
+  }
+
+  
+
+  useFocusEffect(
+    useCallback(() => {
+      controleDeDadosPreSalvos()
+    }, [])
+  );
 
   return (
     <>
@@ -66,7 +76,7 @@ export default function Login() {
       >
         <View style={styles.conteudoUm}>
           <Image
-            style={{ width: 150, height: 150 }}
+            style={{ width: 150, height: 150, borderRadius: 100 }}
             source={icone}
           />
 

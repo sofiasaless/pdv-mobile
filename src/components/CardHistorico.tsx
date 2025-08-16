@@ -2,16 +2,25 @@ import { Card, Divider, Text } from "@ui-kitten/components";
 import { HistoricoMesa } from "../types/historicoMesa.type";
 import { StyleSheet, View } from "react-native";
 import { dataFirebaseParaDataNormalExtensa, somarPedidos } from "../util/texts.util";
+import { NavigationProp, useNavigation } from "@react-navigation/native";
+import { RootStackParamList } from "../routes/StackRoutes";
 
 interface CardHistoricoProps {
   objeto?: HistoricoMesa
 }
 
 export const CardHistorico: React.FC<CardHistoricoProps> = ({ objeto }) => {
+  const navigator = useNavigation<NavigationProp<RootStackParamList>>();
+
   return (
     <Card
       style={styles.card}
       status='warning'
+      onPress={() => {
+        navigator.navigate('HistoricoConta', {
+          idHistorico: objeto?.id_historico
+        })
+      }}
     >
       <View style={styles.containerTxts}>
         <Text category="h5">

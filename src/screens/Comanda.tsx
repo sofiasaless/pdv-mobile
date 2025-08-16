@@ -45,7 +45,7 @@ export const Comanda: React.FC<Props> = ({ route }) => {
 
   const [usuario, setUsuario] = useState<Usuario>()
 
-  const { itensPedido, limparItens } = useItensPedido()
+  const { itensPedido, limparItens, isVazio } = useItensPedido()
 
   const carregarMesa = async () => {
     setUsuario(await authFirebase.verificarLogin());
@@ -120,6 +120,7 @@ export const Comanda: React.FC<Props> = ({ route }) => {
 
           <View style={[styles.btnsView, { display: (mesa?.status === 'bloqueada') ? 'none' : 'flex' }]}>
             <Button
+              disabled={(mesa?.pedidos.length === 0)}
               accessoryRight={<Ionicons name="receipt" size={20} color="white" />}
               onPress={async () => {
                 let mesaObj = mesa as Mesa
@@ -139,6 +140,7 @@ export const Comanda: React.FC<Props> = ({ route }) => {
             >
               <Button status="success" style={{ flex: 1 }}
                 accessoryRight={<MaterialCommunityIcons name="transfer" size={20} color="white" />}
+                disabled={isVazio()}
                 onPress={() => {
                   navigator.navigate('Transferir', {
                     idMesa: id,
@@ -148,6 +150,7 @@ export const Comanda: React.FC<Props> = ({ route }) => {
               >Transferir itens</Button>
               <Button status="danger" style={{ flex: 1 }}
                 accessoryRight={<MaterialCommunityIcons name="trash-can" size={20} color="white" />}
+                disabled={isVazio()}
                 onPress={() => {
                   Alert.alert('Excluir itens', 'Tem certeza que deseja excluir os itens selecionados?', [
                     {
