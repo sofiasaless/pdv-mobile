@@ -146,6 +146,7 @@ export const Comanda: React.FC<Props> = ({ route }) => {
                     idMesa: id,
                     disponibilizarMesa: (itensPedido.length === mesa?.pedidos.length)
                   })
+                  // console.log(itensPedido)
                 }}
               >Transferir itens</Button>
               <Button status="danger" style={{ flex: 1 }}
@@ -237,11 +238,11 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between'
   },
   conteudoUm: {
-    height: '20%',
+    height: '15%',
     flexDirection: 'column',
     paddingHorizontal: '8%',
-    paddingVertical: '10%',
-    justifyContent: 'flex-end',
+    // paddingVertical: '10%',
+    justifyContent: 'center',
     gap: '5%'
   },
   conteudoUmInterno: {
@@ -259,7 +260,7 @@ const styles = StyleSheet.create({
     borderRadius: 3
   },
   conteudoDois: {
-    height: '80%',
+    height: '85%',
     borderTopEndRadius: 35,
     borderTopStartRadius: 35,
     // paddingHorizontal: '8%',
