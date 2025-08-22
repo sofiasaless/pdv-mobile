@@ -137,6 +137,37 @@ export const historicoFirestore = {
       console.error("Erro ao buscar histórico:", error);
       return [];
     }
+  },
+
+  recuperarHistoricoPorPeriodo: async (dataInicial: Date, dataFinal: Date) => {
+    try {
+      // Garantir que são objetos Date válidos
+      const inicio = new Date(dataInicial);
+      const fim = new Date(dataFinal);
+
+      // console.log('datas que chegaram ao função do firestore')
+      // console.log(inicio)
+      // console.log(fim)
+
+      // Query no Firestore com intervalo de datas
+      const q = query(
+        collection(firestore, nomeColecao),
+        where("encerradoEm", ">=", inicio),
+        where("encerradoEm", "<=", fim)
+      );
+
+      const snapshot = await getDocs(q);
+
+      const lista: HistoricoMesa[] = snapshot.docs.map(doc => ({
+        id_historico: doc.id,
+        ...doc.data()
+      })) as HistoricoMesa[];
+
+      return lista;
+    } catch (error) {
+      console.error("Erro ao buscar histórico por período:", error);
+      return [];
+    }
   }
 
 }
