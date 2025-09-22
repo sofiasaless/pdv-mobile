@@ -1,29 +1,29 @@
-import React, { useEffect, useState } from "react";
+import Ionicons from '@expo/vector-icons/Ionicons';
+import MaterialIcons from "@expo/vector-icons/MaterialIcons";
+import { RouteProp, useNavigation } from "@react-navigation/native";
 import {
   Button,
   Card,
-  CheckBox,
-  Divider,
   Input,
   Modal,
-  useTheme,
+  useTheme
 } from "@ui-kitten/components";
+import React, { useEffect, useState } from "react";
 import {
+  Alert,
   FlatList,
   StyleSheet,
   Text,
   View,
 } from "react-native";
-import Ionicons from '@expo/vector-icons/Ionicons';
 import { ItemCardapio } from "../components/ItemCardapio";
-import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { ItemConfirmacao } from "../components/ItemConfirmacao";
-import { Produto } from "../types/produto.type";
-import { cardapioFirestore } from "../firestore/cardapio.firestore";
 import { useItensPedido } from "../context/ItensPedidoContext";
-import { RouteProp, useNavigation } from "@react-navigation/native";
-import { RootStackParamList } from "../routes/StackRoutes";
+import { cardapioFirestore } from "../firestore/cardapio.firestore";
 import { mesaFirestore } from "../firestore/mesa.firestore";
+import { RootStackParamList } from "../routes/StackRoutes";
+import { Produto } from "../types/produto.type";
+import * as Network from "expo-network";
 
 type CardapioRouteProp = RouteProp<RootStackParamList, "Cardapio">;
 
@@ -142,6 +142,39 @@ const ModalConfirmacao: React.FC<ModalConfirmacaoProps> = ({ visible, fechar, id
   const { itensPedido, limparItens } = useItensPedido()
   const navigator = useNavigation();
 
+  const [isCarregando, setIsCarregando] = useState<boolean>(false)
+
+  const adicionarAoPedido = async () => {
+    try {
+      setIsCarregando(true)
+      const state = await Network.getNetworkStateAsync();
+
+      if (!state.isInternetReachable) {
+        Alert.alert("Verificando conexão com a internet...", "Tente novamente em alguns instantes.");
+        setIsCarregando(false)
+        return;
+      }
+
+      if (!state.isConnected) {
+        Alert.alert(
+          "Sem conexão",
+          "Você não está conectado à internet. Por favor, verifique sua conexão antes de continuar."
+        );
+        setIsCarregando(false)
+        return;
+      }
+
+      await mesaFirestore.adicionarPedidos(itensPedido, idMesa)
+
+      limparItens()
+      fechar()
+      navigator.goBack()
+    } catch (error) {
+      Alert.alert(`Ocorreu um erro ao tentar confirmar o pedido, tente novamente em alguns instantes: ${error}`)
+    }
+
+  }
+
   return (
     <View style={styles.containerModal}>
 
@@ -167,16 +200,9 @@ const ModalConfirmacao: React.FC<ModalConfirmacaoProps> = ({ visible, fechar, id
             />
           </View>
 
-          <Button onPress={async () => {
-            // console.log(itensPedido)
-            // console.log(idMesa)
-            await mesaFirestore.adicionarPedidos(itensPedido, idMesa)
-
-            limparItens()
-            fechar()
-            navigator.goBack()
-          }}
-
+          <Button
+            disabled={isCarregando}
+            onPress={adicionarAoPedido}
           >Confirmar</Button>
         </Card>
       </Modal>
