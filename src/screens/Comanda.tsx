@@ -141,10 +141,10 @@ export const Comanda: React.FC<Props> = ({ route }) => {
               titulo={"Encerrar conta"}
               icone={<Ionicons name="receipt" size={20} color="white" />}
               onPress={async () => {
-                let mesaObj = mesa as Mesa
+                // let mesaObj = mesa as Mesa
                 await mesaFirestore.atualizarMesa('bloqueada', id ?? '')
 
-                await imprimirPedidosDaMesa(mesaObj)
+                // await imprimirPedidosDaMesa(mesaObj)
               }}
             />
 
