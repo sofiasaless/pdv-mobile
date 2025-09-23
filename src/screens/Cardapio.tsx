@@ -24,6 +24,8 @@ import { mesaFirestore } from "../firestore/mesa.firestore";
 import { RootStackParamList } from "../routes/StackRoutes";
 import { Produto } from "../types/produto.type";
 import * as Network from "expo-network";
+import { colors } from '../theme/colors.theme';
+import { Botao } from '../components/Botao';
 
 type CardapioRouteProp = RouteProp<RootStackParamList, "Cardapio">;
 
@@ -70,7 +72,7 @@ export const Cardapio: React.FC<Props> = ({ route }) => {
     <>
 
       <View
-        style={[styles.container, { backgroundColor: theme['color-primary-800'] }]}
+        style={[styles.container, { backgroundColor: colors.azul_principal }]}
       >
 
         {/* <View style={styles.conteudoUm}>
@@ -109,13 +111,24 @@ export const Cardapio: React.FC<Props> = ({ route }) => {
           </View>
 
           <View style={styles.btnsView}>
-            <Button
+            {/* <Button
               appearance="outline"
               accessoryRight={<Ionicons name="receipt" size={20} color="#3366FF" />}
               onPress={() => {
                 setMostrarModal(true)
               }}
-            >Adicionar ao pedido</Button>
+            >Adicionar ao pedido</Button> */}
+
+            <Botao
+              cor={colors.azul_principal}
+              titulo={"Adicionar"}
+              disabled={false}
+              onPress={() => {
+                setMostrarModal(true)
+              }}
+              icone={<Ionicons name="receipt" size={20} color="white" />}
+              flex
+            />
           </View>
 
         </View>
@@ -200,10 +213,17 @@ const ModalConfirmacao: React.FC<ModalConfirmacaoProps> = ({ visible, fechar, id
             />
           </View>
 
-          <Button
+          {/* <Button
             disabled={isCarregando}
             onPress={adicionarAoPedido}
-          >Confirmar</Button>
+          >Confirmar</Button> */}
+
+          <Botao 
+            titulo="Confirmar"
+            disabled={isCarregando}
+            cor={colors.azul_principal}
+            onPress={adicionarAoPedido}
+          />
         </Card>
       </Modal>
 
@@ -283,8 +303,9 @@ const styles = StyleSheet.create({
     gap: '2%'
   },
   btnsView: {
+    height: '7%',
     paddingHorizontal: '8%',
-    gap: '6%'
+    // gap: '6%'
   },
   containerModal: {
     minHeight: 192,

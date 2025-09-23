@@ -6,6 +6,7 @@ import { RootStackParamList } from "../routes/StackRoutes";
 import { Mesa } from "../types/mesa.type";
 import { mesaFirestore } from "../firestore/mesa.firestore";
 import { useItensPedido } from "../context/ItensPedidoContext";
+import { colors, fonts } from "../theme/colors.theme";
 
 interface CardMesaTransferenciaProps {
   objetoMesa: Mesa,
@@ -22,7 +23,7 @@ export const CardMesaTransferencia: React.FC<CardMesaTransferenciaProps> = ({ ob
   return (
     <Card
       style={[styles.card, {
-        backgroundColor: (objetoMesa.status === 'disponivel') ? 'white' : (objetoMesa.status === 'ocupada') ? theme['color-success-600'] : theme['color-danger-400']
+        backgroundColor: (objetoMesa.status === 'disponivel') ? 'white' : (objetoMesa.status === 'ocupada') ? theme['color-success-600'] : colors.mesa_bloqueada
       }]}
       onPress={async () => {
         // transferindo pedidos
@@ -63,28 +64,43 @@ export const CardMesaTransferencia: React.FC<CardMesaTransferenciaProps> = ({ ob
         }
         <Text
           style={{
-            fontSize: 15,
+            fontSize: 14,
+            fontFamily: fonts.font_family_medio,
             color: (objetoMesa.status === 'disponivel') ? theme['color-primary-900'] : (objetoMesa.status === 'ocupada') ? theme['color-success-900'] : theme['color-danger-900']
           }}
         >
           {objetoMesa.status.toUpperCase()}
         </Text>
       </View>
-      <Text style={{ textAlign: 'center', fontSize: 25 }}>MESA {(objetoMesa.numeracao < 10) ? `0${objetoMesa.numeracao}` : `${objetoMesa.numeracao}`}</Text>
+      <Text style={{ textAlign: 'center', fontSize: 26, fontFamily: fonts.font_family_bold }}>MESA {(objetoMesa.numeracao < 10) ? `0${objetoMesa.numeracao}` : `${objetoMesa.numeracao}`}</Text>
 
     </Card>
   )
 }
 
 const styles = StyleSheet.create({
-  card: {
-    justifyContent: 'center',
-    paddingVertical: 10
-  },
+  // card: {
+  //   justifyContent: 'center',
+  //   paddingVertical: 10
+  // },
   txtLabel: {
     flexDirection: 'row',
     gap: 2,
     justifyContent: 'center',
     alignItems: 'center'
+  },
+  card: {
+    borderRadius: 14,
+    height: 130,
+    width: '47%',
+    // paddingHorizontal: 5,
+    marginBottom: 10,
+    alignContent: 'center',
+    justifyContent: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 4,
   }
 })

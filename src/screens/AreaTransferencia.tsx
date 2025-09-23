@@ -22,6 +22,7 @@ import { authFirebase } from "../auth/auth.firebase";
 import { Usuario } from "../types/usuario.type";
 import { CardMesaTransferencia } from "../components/CardMesaTransferencia";
 import { RootStackParamList } from "../routes/StackRoutes";
+import { colors } from "../theme/colors.theme";
 
 type AreaTransferenciaProp = RouteProp<RootStackParamList, "Transferir">;
 
@@ -46,10 +47,6 @@ export const AreaTransferencia: React.FC<Props> = ( { route } ) => {
       }
     })
 
-    await mesaFirestore.contarMesas().then((dados) => {
-      setQtdMesas(dados ?? [])
-    })
-
     setUsuario(await authFirebase.verificarLogin());
   }
 
@@ -64,7 +61,7 @@ export const AreaTransferencia: React.FC<Props> = ( { route } ) => {
   return (
     <>
       <View
-        style={[styles.container, { backgroundColor: theme['color-primary-800'] }]}
+        style={[styles.container, { backgroundColor: colors.azul_principal }]}
       >
 
         <View style={styles.conteudoUm}>
@@ -125,7 +122,7 @@ const styles = StyleSheet.create({
     height: '90%',
     borderTopEndRadius: 35,
     borderTopStartRadius: 35,
-    paddingHorizontal: '8%',
+    paddingHorizontal: '5%',
     paddingVertical: '8%',
     gap: '2%'
   },

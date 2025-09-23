@@ -1,30 +1,33 @@
 const icone = require("../public/logo.png");
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { NavigationProp, useFocusEffect, useNavigation } from "@react-navigation/native";
 import {
-  IndexPath,
-  Select,
-  SelectItem,
-  useTheme,
-  Input,
   Button,
   Card,
-  Modal
+  IndexPath,
+  Input,
+  Modal,
+  Select,
+  SelectItem,
+  useTheme
 } from "@ui-kitten/components";
+import { useFonts } from "expo-font";
 import { useCallback, useState } from "react";
 import {
-  StyleSheet,
-  View,
-  Platform,
-  KeyboardAvoidingView,
-  ScrollView,
-  Keyboard,
-  TouchableWithoutFeedback,
   Image,
-  Text
+  KeyboardAvoidingView,
+  Platform,
+  StyleSheet,
+  Text,
+  View
 } from "react-native";
 import { authFirebase } from "../auth/auth.firebase";
-import { NavigationProp, useFocusEffect, useNavigation } from "@react-navigation/native";
 import { RootStackParamList } from "../routes/StackRoutes";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+
+import * as SplashScreen from 'expo-splash-screen';
+import { colors, fonts } from "../theme/colors.theme";
+import { Botao } from "../components/Botao";
+SplashScreen.preventAutoHideAsync();
 
 export default function Login() {
   const theme = useTheme();
@@ -51,6 +54,12 @@ export default function Login() {
   //   }
   // }
 
+  const [loaded, error] = useFonts({
+    'Barlow-Bold': require('../../assets/fonts/Barlow-Bold.ttf'),
+    'Barlow-Regular': require('../../assets/fonts/Barlow-Regular.ttf'),
+    'Barlow-Medium': require('../../assets/fonts/Barlow-Medium.ttf'),
+  });
+
   const controleDeDadosPreSalvos = async () => {
     if (await AsyncStorage.getItem('usuario') != null) {
       // console.log('removendo usuario pre-salvo...')
@@ -59,18 +68,26 @@ export default function Login() {
     }
   }
 
-  
+  const [isCarregando, setIsCarregando] = useState<boolean>(false)
 
   useFocusEffect(
     useCallback(() => {
+      if (loaded || error) {
+        SplashScreen.hideAsync();
+      }
       controleDeDadosPreSalvos()
-    }, [])
+    }, [loaded, error])
   );
+
+  if (!loaded && !error) {
+    return null;
+  }
 
   return (
     <>
       <KeyboardAvoidingView
-        style={[styles.container, { backgroundColor: theme['color-primary-800'] }]}
+        style={styles.container}
+        // style={[styles.container, { backgroundColor: theme['color-primary-800'] }]}
         behavior={Platform.OS == 'ios' ? 'padding' : 'height'}
         keyboardVerticalOffset={20}
       >
@@ -115,7 +132,7 @@ export default function Login() {
             onChangeText={setSenha}
           />
 
-          <Button status="primary" size="medium"
+          {/* <Button status="primary" size="medium"
             onPress={async () => {
               // console.log(selectedIndex.row)
               // console.log(senha)
@@ -134,7 +151,32 @@ export default function Login() {
               }
               setVisibleModal(true)
             }}
-          >Entrar</Button>
+          >Entrar</Button> */}
+
+          <Botao
+            cor={colors.azul_principal}
+            titulo="Entrar"
+            disabled={isCarregando}
+            onPress={async () => {
+              setIsCarregando(true)
+              if (selectedIndex.row === 1) {
+                if (await authFirebase.loginUsuario({ tipo: 'GERENTE', senha: senha })) {
+                  setAcaoModal('SUCESSO')
+                } else {
+                  setAcaoModal('ERRO')
+                }
+              } else {
+                if (await authFirebase.loginUsuario({ tipo: 'GARCOM', senha: senha })) {
+                  setAcaoModal('SUCESSO')
+                } else {
+                  setAcaoModal('ERRO')
+                }
+              }
+              setVisibleModal(true)
+              setIsCarregando(false)
+            }}
+          />
+
           {/* <Button
             size="tiny"
             onPress={async () => {
@@ -178,7 +220,9 @@ export const ModalAlerta: React.FC<ModalAlertaProps> = ({ visivel, fechar, acao 
               'Ocorreu um erro, por favor tente novamente!'
           }
         </Text>
-        <Button status={(acao === 'SUCESSO') ? 'success' : 'danger'} appearance="outline"
+        <Button 
+          style={{marginTop: 10}}
+          status={(acao === 'SUCESSO') ? 'success' : 'danger'} appearance="outline"
           onPress={() => {
             if (acao === 'SUCESSO') {
               fechar();
@@ -205,14 +249,16 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     flexDirection: 'column',
-    justifyContent: 'space-between'
+    justifyContent: 'space-between',
+    backgroundColor: colors.azul_principal
   },
   conteudoUm: {
     height: '60%',
     justifyContent: 'center',
     alignContent: 'center',
     alignItems: 'center',
-    paddingHorizontal: '8%'
+    paddingHorizontal: '8%',
+    backgroundColor: colors.azul_principal
   },
   conteudoDois: {
     height: '40%',
@@ -224,7 +270,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center'
   },
   text: {
-    textAlign: 'center'
+    textAlign: 'center',
+    fontFamily: fonts.font_family_medio
   },
   containerModal: {
     minHeight: 192,
