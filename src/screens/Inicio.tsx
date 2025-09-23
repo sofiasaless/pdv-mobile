@@ -23,6 +23,7 @@ import { Usuario } from "../types/usuario.type";
 import { RootStackParamList } from "../routes/StackRoutes";
 import { useItensPedido } from "../context/ItensPedidoContext";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { colors, fonts } from "../theme/colors.theme";
 
 export default function Inicio() {
   const theme = useTheme();
@@ -78,14 +79,14 @@ export default function Inicio() {
   return (
     <>
       <View
-        style={[styles.container, { backgroundColor: theme['color-primary-800'] }]}
+        style={[styles.container, { backgroundColor: colors.azul_principal }]}
       >
 
         <View style={styles.conteudoUm}>
 
           <View style={[styles.conteudoUmInterno]}>
-            <Text style={[styles.text, { color: theme['color-primary-200'], fontSize: 20, fontWeight: 'bold' }]}>
-              Bem-vindo ao Up! PDV
+            <Text style={[styles.text, { color: theme['color-primary-200'], fontSize: 40, fontFamily: fonts.font_family_bold }]}>
+              Up! PDV
             </Text>
             <Text style={[styles.text, { color: theme['color-primary-200'], fontSize: 15 }]}>
               Operador {usuario?.tipo}
@@ -130,12 +131,12 @@ export default function Inicio() {
             renderItem={({ item }) => <CardMesa numeracao={item.numeracao} pedidos={[]} id_mesa={item.id_mesa} status={item.status as StatusMesa} />}
             numColumns={2}
             columnWrapperStyle={{
-              gap: 10,
+              gap: 15,
               justifyContent: "center",
             }}
             contentContainerStyle={{
-              gap: 10,
-              paddingBottom: 20
+              gap: 5,
+              // paddingBottom: 20
             }}
             showsVerticalScrollIndicator={false}
           />
@@ -156,23 +157,24 @@ const styles = StyleSheet.create({
   conteudoUm: {
     height: '20%',
     flexDirection: 'row',
-    paddingHorizontal: '8%',
+    paddingHorizontal: '5%',
     paddingVertical: '10%',
     justifyContent: 'space-between'
   },
   conteudoUmInterno: {
-    justifyContent: 'flex-end'
+    justifyContent: 'flex-end',
   },
   conteudoDois: {
     height: '80%',
     borderTopEndRadius: 35,
     borderTopStartRadius: 35,
-    paddingHorizontal: '8%',
+    paddingHorizontal: '5%',
     paddingVertical: '8%',
     gap: '2%'
   },
   text: {
-    textAlign: 'left'
+    textAlign: 'left',
+    fontFamily: fonts.font_family_medio
   },
   filtragem: {
     flexDirection: 'row',

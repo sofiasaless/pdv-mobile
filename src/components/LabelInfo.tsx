@@ -2,6 +2,7 @@ import { Card, Layout, useTheme } from "@ui-kitten/components";
 import React, { useEffect, useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { StatusMesa } from "../types/mesa.type";
+import { fonts } from "../theme/colors.theme";
 
 interface LabelInfoProps {
   descricao: StatusMesa,
@@ -36,7 +37,8 @@ export const LabelInfo: React.FC<LabelInfoProps> = ({ descricao, tamanhoLetra })
       <Text
         style={{
           color: theme[textColor],
-          fontSize: 13
+          fontSize: 13,
+          fontFamily: fonts.font_family_medio
         }}
       >{descricao.toUpperCase()}</Text>
     </View >

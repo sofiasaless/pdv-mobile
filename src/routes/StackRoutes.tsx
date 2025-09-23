@@ -22,6 +22,7 @@ import Login from '../screens/Login';
 import { AreaTransferencia } from '../screens/AreaTransferencia';
 import { Configuracoes } from '../screens/Configuracoes';
 import { HistoricoConta } from '../screens/HistoricoConta';
+import { colors } from '../theme/colors.theme';
 
 enableScreens();
 
@@ -46,7 +47,7 @@ export default function StackRoutes() {
         options={{
           title: 'Comanda',
           headerStyle: {
-            backgroundColor: '#102694',
+            backgroundColor: colors.azul_principal,
           },
           headerTintColor: 'white',
         }}
@@ -58,7 +59,7 @@ export default function StackRoutes() {
         options={{
           title: 'Cardápio',
           headerStyle: {
-            backgroundColor: '#102694',
+            backgroundColor: colors.azul_principal,
           },
           headerTintColor: 'white',
         }}
@@ -70,7 +71,7 @@ export default function StackRoutes() {
         options={{
           title: 'Transferência',
           headerStyle: {
-            backgroundColor: '#102694',
+            backgroundColor: colors.azul_principal,
           },
           headerTintColor: 'white',
         }}
@@ -82,7 +83,7 @@ export default function StackRoutes() {
         options={{
           title: 'Configurações',
           headerStyle: {
-            backgroundColor: '#102694',
+            backgroundColor: colors.azul_principal,
           },
           headerTintColor: 'white',
         }}
@@ -94,7 +95,7 @@ export default function StackRoutes() {
         options={{
           title: 'Configurações - Histórico da conta',
           headerStyle: {
-            backgroundColor: '#102694',
+            backgroundColor: colors.azul_principal,
           },
           headerTintColor: 'white',
         }}

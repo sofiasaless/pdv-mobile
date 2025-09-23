@@ -1,6 +1,7 @@
 import { Card, Layout, useTheme } from "@ui-kitten/components";
 import React from "react";
 import { Text } from "react-native";
+import { fonts } from "../theme/colors.theme";
 
 interface QuantidadeInfoProps {
   tema: 'danger' | 'success' | 'primary',
@@ -21,6 +22,7 @@ export const QuantidadeInfo: React.FC<QuantidadeInfoProps> = ({ tema, quantidade
     >
       <Text
         style={{
+          fontFamily: fonts.font_family_medio,
           color: (descricao === 'livres') ? theme['color-primary-600'] : (descricao === 'ocupadas') ? theme['color-success-600'] : theme['color-danger-600']
         }}
       >{quantidade} {descricao.toUpperCase()}</Text>

@@ -4,6 +4,7 @@ import { Produto } from "../types/produto.type"
 import { useItensPedido } from "../context/ItensPedidoContext";
 import { useState } from "react";
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
+import { colors } from "../theme/colors.theme";
 
 interface ItemCardapioProps {
   objeto: Produto,
@@ -37,7 +38,8 @@ export const ItemCardapio: React.FC<ItemCardapioProps> = ({ objeto, abrirModalOb
   }
 
   return (
-    <TouchableOpacity style={[styles.container, { backgroundColor: theme[(selecionado) ? 'color-primary-900' : 'color-primary-700'] }]}
+    // <TouchableOpacity style={[styles.container, { backgroundColor: theme[(selecionado) ? 'color-primary-900' : 'color-primary-700'] }]}
+    <TouchableOpacity style={[styles.container, { backgroundColor: (selecionado) ? '#3a5485' : colors.azul_secundario }]}
       onPress={() => {
         setSelecionado(!selecionado)
         selecionarItem(!selecionado)

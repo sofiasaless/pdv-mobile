@@ -39,11 +39,12 @@ export default function Produtos() {
           onPress: () => {
             setDescricao('')
             setPreco(0)
+            carregarCardapio()
           }
         }
       ])
     } catch (error) {
-
+      console.log('erro ao cadastrar no cardapio')
     }
   }
 

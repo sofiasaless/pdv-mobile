@@ -1,29 +1,31 @@
-import React, { useEffect, useState } from "react";
+import Ionicons from '@expo/vector-icons/Ionicons';
+import MaterialIcons from "@expo/vector-icons/MaterialIcons";
+import { RouteProp, useNavigation } from "@react-navigation/native";
 import {
   Button,
   Card,
-  CheckBox,
-  Divider,
   Input,
   Modal,
-  useTheme,
+  useTheme
 } from "@ui-kitten/components";
+import React, { useEffect, useState } from "react";
 import {
+  Alert,
   FlatList,
   StyleSheet,
   Text,
   View,
 } from "react-native";
-import Ionicons from '@expo/vector-icons/Ionicons';
 import { ItemCardapio } from "../components/ItemCardapio";
-import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { ItemConfirmacao } from "../components/ItemConfirmacao";
-import { Produto } from "../types/produto.type";
-import { cardapioFirestore } from "../firestore/cardapio.firestore";
 import { useItensPedido } from "../context/ItensPedidoContext";
-import { RouteProp, useNavigation } from "@react-navigation/native";
-import { RootStackParamList } from "../routes/StackRoutes";
+import { cardapioFirestore } from "../firestore/cardapio.firestore";
 import { mesaFirestore } from "../firestore/mesa.firestore";
+import { RootStackParamList } from "../routes/StackRoutes";
+import { Produto } from "../types/produto.type";
+import * as Network from "expo-network";
+import { colors } from '../theme/colors.theme';
+import { Botao } from '../components/Botao';
 
 type CardapioRouteProp = RouteProp<RootStackParamList, "Cardapio">;
 
@@ -70,7 +72,7 @@ export const Cardapio: React.FC<Props> = ({ route }) => {
     <>
 
       <View
-        style={[styles.container, { backgroundColor: theme['color-primary-800'] }]}
+        style={[styles.container, { backgroundColor: colors.azul_principal }]}
       >
 
         {/* <View style={styles.conteudoUm}>
@@ -109,13 +111,24 @@ export const Cardapio: React.FC<Props> = ({ route }) => {
           </View>
 
           <View style={styles.btnsView}>
-            <Button
+            {/* <Button
               appearance="outline"
               accessoryRight={<Ionicons name="receipt" size={20} color="#3366FF" />}
               onPress={() => {
                 setMostrarModal(true)
               }}
-            >Adicionar ao pedido</Button>
+            >Adicionar ao pedido</Button> */}
+
+            <Botao
+              cor={colors.azul_principal}
+              titulo={"Adicionar"}
+              disabled={false}
+              onPress={() => {
+                setMostrarModal(true)
+              }}
+              icone={<Ionicons name="receipt" size={20} color="white" />}
+              flex
+            />
           </View>
 
         </View>
@@ -142,6 +155,39 @@ const ModalConfirmacao: React.FC<ModalConfirmacaoProps> = ({ visible, fechar, id
   const { itensPedido, limparItens } = useItensPedido()
   const navigator = useNavigation();
 
+  const [isCarregando, setIsCarregando] = useState<boolean>(false)
+
+  const adicionarAoPedido = async () => {
+    try {
+      setIsCarregando(true)
+      const state = await Network.getNetworkStateAsync();
+
+      if (!state.isInternetReachable) {
+        Alert.alert("Verificando conexão com a internet...", "Tente novamente em alguns instantes.");
+        setIsCarregando(false)
+        return;
+      }
+
+      if (!state.isConnected) {
+        Alert.alert(
+          "Sem conexão",
+          "Você não está conectado à internet. Por favor, verifique sua conexão antes de continuar."
+        );
+        setIsCarregando(false)
+        return;
+      }
+
+      await mesaFirestore.adicionarPedidos(itensPedido, idMesa)
+
+      limparItens()
+      fechar()
+      navigator.goBack()
+    } catch (error) {
+      Alert.alert(`Ocorreu um erro ao tentar confirmar o pedido, tente novamente em alguns instantes: ${error}`)
+    }
+
+  }
+
   return (
     <View style={styles.containerModal}>
 
@@ -167,17 +213,17 @@ const ModalConfirmacao: React.FC<ModalConfirmacaoProps> = ({ visible, fechar, id
             />
           </View>
 
-          <Button onPress={async () => {
-            // console.log(itensPedido)
-            // console.log(idMesa)
-            await mesaFirestore.adicionarPedidos(itensPedido, idMesa)
+          {/* <Button
+            disabled={isCarregando}
+            onPress={adicionarAoPedido}
+          >Confirmar</Button> */}
 
-            limparItens()
-            fechar()
-            navigator.goBack()
-          }}
-
-          >Confirmar</Button>
+          <Botao 
+            titulo="Confirmar"
+            disabled={isCarregando}
+            cor={colors.azul_principal}
+            onPress={adicionarAoPedido}
+          />
         </Card>
       </Modal>
 
@@ -257,8 +303,9 @@ const styles = StyleSheet.create({
     gap: '2%'
   },
   btnsView: {
+    height: '7%',
     paddingHorizontal: '8%',
-    gap: '6%'
+    // gap: '6%'
   },
   containerModal: {
     minHeight: 192,
