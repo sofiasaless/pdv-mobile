@@ -162,12 +162,14 @@ export default function Login() {
               if (selectedIndex.row === 1) {
                 if (await authFirebase.loginUsuario({ tipo: 'GERENTE', senha: senha })) {
                   setAcaoModal('SUCESSO')
+                  setSenha('')
                 } else {
                   setAcaoModal('ERRO')
                 }
               } else {
                 if (await authFirebase.loginUsuario({ tipo: 'GARCOM', senha: senha })) {
                   setAcaoModal('SUCESSO')
+                  setSenha('')
                 } else {
                   setAcaoModal('ERRO')
                 }
