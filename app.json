@@ -7,6 +7,9 @@
     },
     "name": "Up! PDV",
     "slug": "pdv-mobile",
+     "runtimeVersion": {
+      "policy": "appVersion"
+    },
     "version": "2.0.0",
     "orientation": "portrait",
     "icon": "./assets/logo.png",
@@ -16,6 +19,11 @@
       "image": "./assets/splash.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
+    },
+    "updates": {
+      "enabled": true,
+      "checkAutomatically": "ON_LOAD",
+      "fallbackToCacheTimeout": 0
     },
     "ios": {
       "supportsTablet": true,
