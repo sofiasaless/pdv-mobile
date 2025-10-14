@@ -275,6 +275,7 @@ const ModalObservacao: React.FC<ModalObservacaoProps> = ({ visible, fechar, prod
           </Text>
 
           <Input
+            style={{marginBottom: 15}}
             label="Observações"
             placeholder="Digite aqui..."
             value={observacao}
@@ -325,7 +326,7 @@ const styles = StyleSheet.create({
     // gap: '6%'
   },
   containerModal: {
-    minHeight: 192,
+    minHeight: 192
   },
   backdrop: {
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
