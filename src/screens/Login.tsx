@@ -143,7 +143,7 @@ export default function Login() {
             Bem-vindo ao Up! PDV
           </Text>
           <Text style={[styles.text, { color: theme['color-primary-200'], fontSize: 15 }]} >
-            Insira suas credenciais para começar.
+            Insira suas credenciais para começar as vendas.
           </Text>
         </View>
 
