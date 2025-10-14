@@ -1,4 +1,5 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
+import FontAwesome from '@expo/vector-icons/FontAwesome';
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { RouteProp, useNavigation } from "@react-navigation/native";
 import {
@@ -70,7 +71,7 @@ export const Cardapio: React.FC<Props> = ({ route }) => {
       setCarregando(false)
     } catch (error) {
       setCarregando(false)
-      Alert.alert('Erro ao carregar o cardápio', `${error}`)      
+      Alert.alert('Erro ao carregar o cardápio', `${error}`)
     }
   }
 
@@ -104,25 +105,25 @@ export const Cardapio: React.FC<Props> = ({ route }) => {
           </View>
 
           <View style={{ height: '70%' }}>
-            {(carregando)?
-            <Carregando />
-            :
-            <FlatList
-              keyExtractor={(item) => item.id_produto ?? item.descricao}
-              data={produtosFiltrados}
-              renderItem={({ item }) => (
-                <ItemCardapio
-                  objeto={item}
-                  abrirModalObs={(produto) => {
-                    setItemSelecionado(produto);
-                    setMostrarModalObs(true);
-                  }}
-                />
-              )}
-              numColumns={1}
-              contentContainerStyle={{ gap: 8 }}
-            />
-          }
+            {(carregando) ?
+              <Carregando />
+              :
+              <FlatList
+                keyExtractor={(item) => item.id_produto ?? item.descricao}
+                data={produtosFiltrados}
+                renderItem={({ item }) => (
+                  <ItemCardapio
+                    objeto={item}
+                    abrirModalObs={(produto) => {
+                      setItemSelecionado(produto);
+                      setMostrarModalObs(true);
+                    }}
+                  />
+                )}
+                numColumns={1}
+                contentContainerStyle={{ gap: 8 }}
+              />
+            }
           </View>
 
           <View style={styles.btnsView}>
@@ -143,7 +144,7 @@ export const Cardapio: React.FC<Props> = ({ route }) => {
               }}
               badgeNumber={itensPedido.length}
               badgeText={(itensPedido.length > 1) ? 'adicionados' : 'adicionado'}
-              icone={<Ionicons name="receipt" size={20} color="white" />}
+              icone={<Ionicons name="cart-sharp" size={22} color="white" />}
               flex
             />
           </View>
@@ -236,10 +237,11 @@ const ModalConfirmacao: React.FC<ModalConfirmacaoProps> = ({ visible, fechar, id
           >Confirmar</Button> */}
 
           <Botao
-            titulo="Confirmar"
+            titulo="Enviar pedido"
             disabled={isCarregando}
             cor={colors.azul_principal}
             onPress={adicionarAoPedido}
+            icone={<FontAwesome name="send" size={20} color="white" />}
           />
         </Card>
       </Modal>
@@ -275,7 +277,7 @@ const ModalObservacao: React.FC<ModalObservacaoProps> = ({ visible, fechar, prod
           </Text>
 
           <Input
-            style={{marginBottom: 15}}
+            style={{ marginBottom: 15 }}
             label="Observações"
             placeholder="Digite aqui..."
             value={observacao}
