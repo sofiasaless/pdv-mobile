@@ -26,6 +26,8 @@ import { Produto } from "../types/produto.type";
 import * as Network from "expo-network";
 import { colors } from '../theme/colors.theme';
 import { Botao } from '../components/Botao';
+import { BotaoBadge } from '../components/BotaoBadge';
+import { Carregando } from '../components/Carregando';
 
 type CardapioRouteProp = RouteProp<RootStackParamList, "Cardapio">;
 
@@ -38,7 +40,9 @@ export const Cardapio: React.FC<Props> = ({ route }) => {
 
   const idMesa = route?.params.idMesa;
 
-  const { limparItens } = useItensPedido()
+  const { limparItens, itensPedido } = useItensPedido()
+
+  const [carregando, setCarregando] = useState<boolean>(true)
 
   const [produtosCardapio, setProdutosCardapio] = useState<Produto[]>([]);
 
@@ -54,13 +58,20 @@ export const Cardapio: React.FC<Props> = ({ route }) => {
 
 
   const carregarCardapio = async () => {
-    // console.log('renderizando cardapio ')
-    limparItens()
-    await cardapioFirestore.recuperarCardapio().then((dados) => {
-      if (dados != undefined) {
-        setProdutosCardapio(dados)
-      }
-    })
+    try {
+      console.log('renderizando cardapio ')
+      setCarregando(true)
+      limparItens()
+      await cardapioFirestore.recuperarCardapio().then((dados) => {
+        if (dados != undefined) {
+          setProdutosCardapio(dados)
+        }
+      })
+      setCarregando(false)
+    } catch (error) {
+      setCarregando(false)
+      Alert.alert('Erro ao carregar o cardápio', `${error}`)      
+    }
   }
 
   useEffect(() => {
@@ -93,6 +104,9 @@ export const Cardapio: React.FC<Props> = ({ route }) => {
           </View>
 
           <View style={{ height: '70%' }}>
+            {(carregando)?
+            <Carregando />
+            :
             <FlatList
               keyExtractor={(item) => item.id_produto ?? item.descricao}
               data={produtosFiltrados}
@@ -106,8 +120,9 @@ export const Cardapio: React.FC<Props> = ({ route }) => {
                 />
               )}
               numColumns={1}
-              contentContainerStyle={{ gap: 5 }}
+              contentContainerStyle={{ gap: 8 }}
             />
+          }
           </View>
 
           <View style={styles.btnsView}>
@@ -119,13 +134,15 @@ export const Cardapio: React.FC<Props> = ({ route }) => {
               }}
             >Adicionar ao pedido</Button> */}
 
-            <Botao
+            <BotaoBadge
               cor={colors.azul_principal}
-              titulo={"Adicionar"}
+              titulo={"Ver produtos"}
               disabled={false}
               onPress={() => {
                 setMostrarModal(true)
               }}
+              badgeNumber={itensPedido.length}
+              badgeText={(itensPedido.length > 1) ? 'adicionados' : 'adicionado'}
               icone={<Ionicons name="receipt" size={20} color="white" />}
               flex
             />
@@ -218,7 +235,7 @@ const ModalConfirmacao: React.FC<ModalConfirmacaoProps> = ({ visible, fechar, id
             onPress={adicionarAoPedido}
           >Confirmar</Button> */}
 
-          <Botao 
+          <Botao
             titulo="Confirmar"
             disabled={isCarregando}
             cor={colors.azul_principal}

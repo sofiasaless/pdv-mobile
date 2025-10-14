@@ -3,6 +3,7 @@ import {
   Button,
   CheckBox,
   Divider,
+  Spinner,
   useTheme,
 } from "@ui-kitten/components";
 import {
@@ -29,6 +30,7 @@ import { historicoFirestore } from "../firestore/historico.firestore";
 import { imprimirPedidosDaMesa } from "../util/printer.util";
 import { colors, fonts } from "../theme/colors.theme";
 import { Botao } from "../components/Botao";
+import { Carregando } from "../components/Carregando";
 
 type ComandaRouteProp = RouteProp<RootStackParamList, "Comanda">;
 
@@ -49,23 +51,33 @@ export const Comanda: React.FC<Props> = ({ route }) => {
 
   const { itensPedido, limparItens, isVazio } = useItensPedido()
 
-  const carregarMesa = async () => {
-    setUsuario(await authFirebase.verificarLogin());
+  const [carregando, setCarregando] = useState<boolean>(true)
 
-    if (id != undefined) {
-      await mesaFirestore.recuperarMesaPorId(id).then(async (dados) => {
-        if (dados != undefined) {
-          setMesa(dados)
-          setTotal(dados.pedidos.reduce((acc, item) => acc + item.preco * item.quantidade, 0));
-        }
-      })
+  const carregarMesa = async () => {
+    try {
+      // console.info('carregando a mesa...')
+      setUsuario(await authFirebase.verificarLogin());
+      setCarregando(true)
+
+      if (id != undefined) {
+        await mesaFirestore.recuperarMesaPorId(id).then(async (dados) => {
+          if (dados != undefined) {
+            setMesa(dados)
+            setTotal(dados.pedidos.reduce((acc, item) => acc + item.preco * item.quantidade, 0));
+          }
+        })
+      }
+      setCarregando(false)
+    } catch (error) {
+      setCarregando(false)
+      Alert.alert('Erro ao carregar a mesa', `${error}`)
     }
   }
 
   useFocusEffect(
     useCallback(() => {
       carregarMesa()
-    }, [id, mesa, usuario])
+    }, [id])
   );
 
   useFocusEffect(
@@ -115,16 +127,21 @@ export const Comanda: React.FC<Props> = ({ route }) => {
           </View>
 
           <View style={{ height: '60%' }}>
-            <FlatList
-              data={mesa?.pedidos}
-              renderItem={({ item, index }) => (
-                <ItemComanda
-                  indice={index}
-                  objeto={item}
-                />
-              )}
-              numColumns={1}
-            />
+            {(carregando) ?
+              <Carregando />
+              :
+              <FlatList
+                data={mesa?.pedidos}
+                renderItem={({ item, index }) => (
+                  <ItemComanda
+                    indice={index}
+                    objeto={item}
+                  />
+                )}
+                numColumns={1}
+              />
+            }
+
           </View>
 
           <View style={[styles.btnsView, { display: (mesa?.status === 'bloqueada') ? 'none' : 'flex' }]}>
@@ -175,7 +192,7 @@ export const Comanda: React.FC<Props> = ({ route }) => {
                 cor={colors.btn_transferir}
                 titulo="Transferir itens"
                 disabled={isVazio()}
-                onPress={() => {
+                onPress={async () => {
                   navigator.navigate('Transferir', {
                     idMesa: id,
                     disponibilizarMesa: (itensPedido.length === mesa?.pedidos.length)
@@ -201,6 +218,7 @@ export const Comanda: React.FC<Props> = ({ route }) => {
                           console.log('mesa ta disponivel')
                           await mesaFirestore.atualizarMesa('disponivel', id ?? "")
                         }
+                        await carregarMesa();
                       }
                     }
                   ])

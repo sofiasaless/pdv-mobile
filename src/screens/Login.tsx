@@ -128,6 +128,7 @@ export default function Login() {
             label='Senha'
             placeholder='Insira a senha do operador'
             status="primary"
+            keyboardType="numeric"
             value={senha}
             onChangeText={setSenha}
           />

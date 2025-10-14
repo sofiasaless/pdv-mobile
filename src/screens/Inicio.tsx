@@ -6,6 +6,7 @@ import {
   useTheme,
 } from "@ui-kitten/components";
 import {
+  Alert,
   FlatList,
   StyleSheet,
   Text,
@@ -24,6 +25,7 @@ import { RootStackParamList } from "../routes/StackRoutes";
 import { useItensPedido } from "../context/ItensPedidoContext";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { colors, fonts } from "../theme/colors.theme";
+import { Carregando } from "../components/Carregando";
 
 export default function Inicio() {
   const theme = useTheme();
@@ -35,15 +37,24 @@ export default function Inicio() {
   const navigator = useNavigation<NavigationProp<RootStackParamList>>();
   const { limparItens } = useItensPedido()
 
-  async function carregarMesas() {
-    await mesaFirestore.recuperarMesas().then((dados) => {
-      if (dados != undefined) {
-        setMesas(dados)
-        contarMesas(dados)
-      }
-    })
+  const [carregando, setCarregando] = useState<boolean>(true)
 
-    setUsuario(await authFirebase.verificarLogin());
+  async function carregarMesas() {
+    try {
+      setCarregando(true)
+      await mesaFirestore.recuperarMesas().then((dados) => {
+        if (dados != undefined) {
+          setMesas(dados)
+          contarMesas(dados)
+        }
+      })
+
+      setUsuario(await authFirebase.verificarLogin());
+      setCarregando(false)
+    } catch (error) {
+      setCarregando(false)
+      Alert.alert('Erro ao carregar as mesas', `${error}`)
+    }
   }
 
   const verificarEstadoUsuario = async () => {
@@ -72,7 +83,7 @@ export default function Inicio() {
       verificarEstadoUsuario();
       carregarMesas()
       limparItens()
-    }, [usuario])
+    }, [])
   );
 
 
@@ -125,21 +136,28 @@ export default function Inicio() {
             <CheckBox status='danger'>Aguardando</CheckBox>
           </View> */}
 
-          <FlatList
-            data={mesas}
-            // keyExtractor={Math.random()}
-            renderItem={({ item }) => <CardMesa numeracao={item.numeracao} pedidos={[]} id_mesa={item.id_mesa} status={item.status as StatusMesa} />}
-            numColumns={2}
-            columnWrapperStyle={{
-              gap: 15,
-              justifyContent: "center",
-            }}
-            contentContainerStyle={{
-              gap: 5,
-              // paddingBottom: 20
-            }}
-            showsVerticalScrollIndicator={false}
-          />
+          {
+            (carregando)?
+            <Carregando />
+            :
+            <FlatList
+              data={mesas}
+              // keyExtractor={Math.random()}
+              renderItem={({ item }) => <CardMesa numeracao={item.numeracao} pedidos={[]} id_mesa={item.id_mesa} status={item.status as StatusMesa} />}
+              numColumns={2}
+              columnWrapperStyle={{
+                gap: 15,
+                justifyContent: "center",
+              }}
+              contentContainerStyle={{
+                gap: 5,
+                // paddingBottom: 20
+              }}
+              showsVerticalScrollIndicator={false}
+            />
+
+          }
+
 
         </View>
 
