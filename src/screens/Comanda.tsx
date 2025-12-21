@@ -53,6 +53,8 @@ export const Comanda: React.FC<Props> = ({ route }) => {
 
   const [carregando, setCarregando] = useState<boolean>(true)
 
+  const [recarregarMesa, setRecarregarMesa] = useState<boolean>(false)
+
   const carregarMesa = async () => {
     try {
       // console.info('carregando a mesa...')
@@ -77,12 +79,11 @@ export const Comanda: React.FC<Props> = ({ route }) => {
   useFocusEffect(
     useCallback(() => {
       carregarMesa()
-    }, [id])
+    }, [id, recarregarMesa])
   );
 
   useFocusEffect(
     useCallback(() => {
-      // console.info('limpando itens armazenados por acidente')
       limparItens()
     }, [])
   );
@@ -165,10 +166,16 @@ export const Comanda: React.FC<Props> = ({ route }) => {
               titulo={"Encerrar conta"}
               icone={<Ionicons name="receipt" size={20} color="white" />}
               onPress={async () => {
-                let mesaObj = mesa as Mesa
-                await mesaFirestore.atualizarMesa('bloqueada', id ?? '')
+                try {
+                  let mesaObj = mesa as Mesa
+                  await mesaFirestore.atualizarMesa('bloqueada', id ?? '')
+                  
+                  setRecarregarMesa(!recarregarMesa)
 
-                await imprimirPedidosDaMesa(mesaObj)
+                  await imprimirPedidosDaMesa(mesaObj)
+                } catch (error: any) {
+                  Alert.alert("Erro ao encerrar conta", error.message)
+                }
               }}
             />
 
@@ -257,6 +264,7 @@ export const Comanda: React.FC<Props> = ({ route }) => {
                           pedidos: mesa?.pedidos ?? [],
                         })
                         await mesaFirestore.confirmarPagamento('disponivel', id ?? "")
+                        setRecarregarMesa(!recarregarMesa)
                       }
                     }
                   ])
@@ -281,6 +289,7 @@ export const Comanda: React.FC<Props> = ({ route }) => {
                 titulo="Reabir mesa"
                 onPress={async () => {
                   await mesaFirestore.atualizarMesa('ocupada', id ?? "");
+                  setRecarregarMesa(!recarregarMesa)
                 }}
                 icone={<MaterialIcons name="menu-open" size={20} color="white" />}
                 flex
