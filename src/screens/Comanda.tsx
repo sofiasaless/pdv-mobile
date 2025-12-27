@@ -169,7 +169,7 @@ export const Comanda: React.FC<Props> = ({ route }) => {
                 try {
                   let mesaObj = mesa as Mesa
                   await mesaFirestore.atualizarMesa('bloqueada', id ?? '')
-                  
+
                   setRecarregarMesa(!recarregarMesa)
 
                   await imprimirPedidosDaMesa(mesaObj)
@@ -215,23 +215,25 @@ export const Comanda: React.FC<Props> = ({ route }) => {
                 titulo="Excluir itens"
                 disabled={isVazio()}
                 onPress={() => {
-                  Alert.alert('Excluir itens', 'Tem certeza que deseja excluir os itens selecionados?', [
-                    {
-                      text: 'Excluir',
-                      onPress: async () => {
-                        await mesaFirestore.removerPedidos(itensPedido, id ?? "")
-                        limparItens()
-                        if (mesa?.pedidos.length === itensPedido.length) {
-                          console.log('mesa ta disponivel')
-                          await mesaFirestore.atualizarMesa('disponivel', id ?? "")
+                  Alert.alert('Excluir itens', 'Tem certeza que deseja excluir os itens selecionados?', 
+                    [
+                      { text: 'Cancelar', style: 'cancel' },
+                      {
+                        text: 'Excluir',
+                        onPress: async () => {
+                          await mesaFirestore.removerPedidos(itensPedido, id ?? "")
+                          limparItens()
+                          if (mesa?.pedidos.length === itensPedido.length) {
+                            console.log('mesa ta disponivel')
+                            await mesaFirestore.atualizarMesa('disponivel', id ?? "")
+                          }
+                          await carregarMesa();
                         }
-                        await carregarMesa();
                       }
-                    }
-                  ])
+                    ])
                 }}
-                icone={<MaterialCommunityIcons name="trash-can" size={20} color="white" />}
-                flex
+              icone={<MaterialCommunityIcons name="trash-can" size={20} color="white" />}
+              flex
               />
             </View>
           </View>
@@ -254,6 +256,7 @@ export const Comanda: React.FC<Props> = ({ route }) => {
               onPress={async () => {
                 try {
                   Alert.alert('Confirmar', 'Tem certeza que deseja confirmar o pagamento?', [
+                    { text: 'Cancelar', style: 'cancel' },
                     {
                       text: 'Confirmar',
                       onPress: async () => {

@@ -6,6 +6,7 @@ import Routes from './src/routes';
 import { ItensPedidoProvider } from './src/context/ItensPedidoContext';
 
 import { enableScreens } from 'react-native-screens';
+import { CardapioProvider } from './src/context/CardapioContext';
 
 enableScreens();
 
@@ -13,8 +14,10 @@ export default function App() {
   return (
     <ApplicationProvider {...eva} theme={eva.light}>
       <ItensPedidoProvider>
-        <Routes />
-        <StatusBar style="light" />
+        <CardapioProvider>
+          <Routes />
+          <StatusBar style="light" />
+        </CardapioProvider>
       </ItensPedidoProvider>
     </ApplicationProvider>
   );

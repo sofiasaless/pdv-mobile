@@ -29,6 +29,7 @@ import { colors } from '../theme/colors.theme';
 import { Botao } from '../components/Botao';
 import { BotaoBadge } from '../components/BotaoBadge';
 import { Carregando } from '../components/Carregando';
+import { useCardapio } from '../context/CardapioContext';
 
 type CardapioRouteProp = RouteProp<RootStackParamList, "Cardapio">;
 
@@ -43,9 +44,7 @@ export const Cardapio: React.FC<Props> = ({ route }) => {
 
   const { limparItens, itensPedido } = useItensPedido()
 
-  const [carregando, setCarregando] = useState<boolean>(true)
-
-  const [produtosCardapio, setProdutosCardapio] = useState<Produto[]>([]);
+  const { cardapio, carregando, carregarCardapio } = useCardapio()
 
   const [mostrarModal, setMostrarModal] = useState<boolean>(false)
   const [mostrarModalObs, setMostrarModalObs] = useState(false);
@@ -53,31 +52,13 @@ export const Cardapio: React.FC<Props> = ({ route }) => {
 
   // pesquisa por produtos
   const [pesquisa, setPesquisa] = useState<string>('')
-  const produtosFiltrados = produtosCardapio.filter((item) =>
+  const produtosFiltrados = cardapio?.filter((item) =>
     item.descricao.toLowerCase().includes(pesquisa.toLowerCase().trim())
   );
 
-
-  const carregarCardapio = async () => {
-    try {
-      console.log('renderizando cardapio ')
-      setCarregando(true)
-      limparItens()
-      await cardapioFirestore.recuperarCardapio().then((dados) => {
-        if (dados != undefined) {
-          setProdutosCardapio(dados)
-        }
-      })
-      setCarregando(false)
-    } catch (error) {
-      setCarregando(false)
-      Alert.alert('Erro ao carregar o cardápio', `${error}`)
-    }
-  }
-
   useEffect(() => {
-    console.log('entrando no useEffec')
-    carregarCardapio()
+    limparItens()
+    if (!cardapio) carregarCardapio();
   }, [])
 
   return (

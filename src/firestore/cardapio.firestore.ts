@@ -6,24 +6,21 @@ const nomeColecao = 'cardapio'
 
 export const cardapioFirestore = {
   recuperarCardapio: async () => {
-    try {
-      const resultadosQuery = await getDocs(query(
-        collection(firestore, nomeColecao),
-        orderBy('descricao', 'asc')
-      ));
-      let listaMesas: any[] = []
 
-      resultadosQuery.forEach((doc) => {
-        listaMesas.push({
-          id_produto: doc.id,
-          ...doc.data()
-        })
+    const resultadosQuery = await getDocs(query(
+      collection(firestore, nomeColecao),
+      orderBy('descricao', 'asc')
+    ));
+    let listaMesas: any[] = []
+
+    resultadosQuery.forEach((doc) => {
+      listaMesas.push({
+        id_produto: doc.id,
+        ...doc.data()
       })
+    })
 
-      return listaMesas as Produto[]
-    } catch (error) {
-      console.log('erro ao recuperar produtos: ', error)
-    }
+    return listaMesas as Produto[]
   },
 
   registrarProduto: async (produto: Produto) => {

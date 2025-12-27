@@ -66,7 +66,7 @@ export default function Login() {
         // Se existir, pergunta ao usuário se quer atualizar
         Alert.alert(
           'Atualização disponível',
-          'Uma nova versão do aplicativo está disponível. Deseja atualizar agora?',
+          `Uma nova versão do aplicativo está disponível com:\n\n• Mesas atualizando em tempo real\n• Fluidez ao carregar o cardápio\n\nDeseja atualizar agora?`,
           [
             { text: 'Depois', style: 'cancel' },
             {
