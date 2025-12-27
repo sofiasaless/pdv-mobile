@@ -147,6 +147,14 @@ export const mesaFirestore = {
     } catch (error) {
       console.log('erro ao contar as mesas')
     }
+  },
+
+  getOnSnapshotQuery: () => {
+    const q = query(
+      collection(firestore, nomeColecao),
+      orderBy("numeracao", "asc")
+    )
+    return q;
   }
 
 }
