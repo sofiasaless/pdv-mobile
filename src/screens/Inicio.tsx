@@ -26,6 +26,7 @@ import { useItensPedido } from "../context/ItensPedidoContext";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { colors, fonts } from "../theme/colors.theme";
 import { Carregando } from "../components/Carregando";
+import { onSnapshot } from "firebase/firestore";
 
 export default function Inicio() {
   const theme = useTheme();
@@ -39,28 +40,11 @@ export default function Inicio() {
 
   const [carregando, setCarregando] = useState<boolean>(true)
 
-  async function carregarMesas() {
-    try {
-      setCarregando(true)
-      await mesaFirestore.recuperarMesas().then((dados) => {
-        if (dados != undefined) {
-          setMesas(dados)
-          contarMesas(dados)
-        }
-      })
-
-      setUsuario(await authFirebase.verificarLogin());
-      setCarregando(false)
-    } catch (error) {
-      setCarregando(false)
-      Alert.alert('Erro ao carregar as mesas', `${error}`)
-    }
-  }
-
   const verificarEstadoUsuario = async () => {
     if (await AsyncStorage.getItem('usuario') === null) {
       navigator.navigate('Login')
     }
+    setUsuario(await authFirebase.verificarLogin());
   }
 
   const contarMesas = (mesasQt: Mesa[]) => {
@@ -81,10 +65,32 @@ export default function Inicio() {
   useFocusEffect(
     useCallback(() => {
       verificarEstadoUsuario();
-      carregarMesas()
       limparItens()
     }, [])
   );
+
+  useEffect(() => {
+    // console.info("buscando mesass")
+    setCarregando(true)
+    try {
+      const unsubscribe = onSnapshot(mesaFirestore.getOnSnapshotQuery(), (snapshot) => {
+        const lista = snapshot.docs.map(doc => ({
+          id_mesa: doc.id,
+          ...doc.data()
+        })) as Mesa[]
+  
+        contarMesas(lista)
+  
+        setMesas(lista);
+      })
+      
+      return () => unsubscribe()
+    } catch (error: any) {
+      Alert.alert("Erro ao carregar as mesas", error.message)
+    } finally {
+      setCarregando(false)
+    }
+  }, [])
 
 
   return (
@@ -137,24 +143,24 @@ export default function Inicio() {
           </View> */}
 
           {
-            (carregando)?
-            <Carregando />
-            :
-            <FlatList
-              data={mesas}
-              // keyExtractor={Math.random()}
-              renderItem={({ item }) => <CardMesa numeracao={item.numeracao} pedidos={[]} id_mesa={item.id_mesa} status={item.status as StatusMesa} />}
-              numColumns={2}
-              columnWrapperStyle={{
-                gap: 15,
-                justifyContent: "center",
-              }}
-              contentContainerStyle={{
-                gap: 5,
-                // paddingBottom: 20
-              }}
-              showsVerticalScrollIndicator={false}
-            />
+            (carregando) ?
+              <Carregando />
+              :
+              <FlatList
+                data={mesas}
+                // keyExtractor={Math.random()}
+                renderItem={({ item }) => <CardMesa numeracao={item.numeracao} pedidos={[]} id_mesa={item.id_mesa} status={item.status as StatusMesa} />}
+                numColumns={2}
+                columnWrapperStyle={{
+                  gap: 15,
+                  justifyContent: "center",
+                }}
+                contentContainerStyle={{
+                  gap: 5,
+                  // paddingBottom: 20
+                }}
+                showsVerticalScrollIndicator={false}
+              />
 
           }
 

@@ -14,6 +14,8 @@ import {
 import { useFonts } from "expo-font";
 import { useCallback, useState } from "react";
 import {
+  ActivityIndicator,
+  Alert,
   Image,
   KeyboardAvoidingView,
   Platform,
@@ -23,6 +25,7 @@ import {
 } from "react-native";
 import { authFirebase } from "../auth/auth.firebase";
 import { RootStackParamList } from "../routes/StackRoutes";
+import * as Updates from 'expo-updates';
 
 import * as SplashScreen from 'expo-splash-screen';
 import { colors, fonts } from "../theme/colors.theme";
@@ -53,6 +56,36 @@ export default function Login() {
 
   //   }
   // }
+  const [checking, setChecking] = useState(true);
+
+  async function checkForUpdates() {
+    try {
+      // Verifica se há atualização disponível
+      const update = await Updates.checkForUpdateAsync();
+      if (update.isAvailable) {
+        // Se existir, pergunta ao usuário se quer atualizar
+        Alert.alert(
+          'Atualização disponível',
+          `Uma nova versão do aplicativo está disponível com:\n\n• Mesas atualizando em tempo real\n• Fluidez ao carregar o cardápio\n\nDeseja atualizar agora?`,
+          [
+            { text: 'Depois', style: 'cancel' },
+            {
+              text: 'Atualizar',
+              onPress: async () => {
+                await Updates.fetchUpdateAsync();
+                await Updates.reloadAsync();
+              },
+            },
+          ]
+        );
+      }
+    } catch (error) {
+      console.log('Erro ao verificar atualizações:', error);
+    } finally {
+      setChecking(false);
+    }
+  }
+
 
   const [loaded, error] = useFonts({
     'Barlow-Bold': require('../../assets/fonts/Barlow-Bold.ttf'),
@@ -72,6 +105,7 @@ export default function Login() {
 
   useFocusEffect(
     useCallback(() => {
+      checkForUpdates()
       if (loaded || error) {
         SplashScreen.hideAsync();
       }
@@ -81,6 +115,14 @@ export default function Login() {
 
   if (!loaded && !error) {
     return null;
+  }
+
+  if (checking) {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <ActivityIndicator size="large" />
+      </View>
+    );
   }
 
   return (
@@ -101,7 +143,7 @@ export default function Login() {
             Bem-vindo ao Up! PDV
           </Text>
           <Text style={[styles.text, { color: theme['color-primary-200'], fontSize: 15 }]} >
-            Insira suas credenciais para prosseguir.
+            Insira suas credenciais para começar as vendas.
           </Text>
         </View>
 
@@ -223,8 +265,8 @@ export const ModalAlerta: React.FC<ModalAlertaProps> = ({ visivel, fechar, acao 
               'Ocorreu um erro, por favor tente novamente!'
           }
         </Text>
-        <Button 
-          style={{marginTop: 10}}
+        <Button
+          style={{ marginTop: 10 }}
           status={(acao === 'SUCESSO') ? 'success' : 'danger'} appearance="outline"
           onPress={() => {
             if (acao === 'SUCESSO') {

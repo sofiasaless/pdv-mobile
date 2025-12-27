@@ -7,7 +7,7 @@
     },
     "name": "Up! PDV",
     "slug": "pdv-mobile",
-     "runtimeVersion": {
+    "runtimeVersion": {
       "policy": "appVersion"
     },
     "version": "2.0.0",
@@ -22,8 +22,10 @@
     },
     "updates": {
       "enabled": true,
-      "checkAutomatically": "ON_LOAD",
-      "fallbackToCacheTimeout": 0
+      // "checkAutomatically": "ON_LOAD",
+      "checkAutomatically": "ON_ERROR_RECOVERY",
+      "fallbackToCacheTimeout": 0,
+      "url": "https://u.expo.dev/a9906f13-dce5-44ee-9ef2-f440077f87c3",
     },
     "ios": {
       "supportsTablet": true,

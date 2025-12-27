@@ -1,4 +1,5 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
+import FontAwesome from '@expo/vector-icons/FontAwesome';
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { RouteProp, useNavigation } from "@react-navigation/native";
 import {
@@ -28,6 +29,7 @@ import { colors } from '../theme/colors.theme';
 import { Botao } from '../components/Botao';
 import { BotaoBadge } from '../components/BotaoBadge';
 import { Carregando } from '../components/Carregando';
+import { useCardapio } from '../context/CardapioContext';
 
 type CardapioRouteProp = RouteProp<RootStackParamList, "Cardapio">;
 
@@ -42,9 +44,7 @@ export const Cardapio: React.FC<Props> = ({ route }) => {
 
   const { limparItens, itensPedido } = useItensPedido()
 
-  const [carregando, setCarregando] = useState<boolean>(true)
-
-  const [produtosCardapio, setProdutosCardapio] = useState<Produto[]>([]);
+  const { cardapio, carregando, carregarCardapio } = useCardapio()
 
   const [mostrarModal, setMostrarModal] = useState<boolean>(false)
   const [mostrarModalObs, setMostrarModalObs] = useState(false);
@@ -52,31 +52,13 @@ export const Cardapio: React.FC<Props> = ({ route }) => {
 
   // pesquisa por produtos
   const [pesquisa, setPesquisa] = useState<string>('')
-  const produtosFiltrados = produtosCardapio.filter((item) =>
+  const produtosFiltrados = cardapio?.filter((item) =>
     item.descricao.toLowerCase().includes(pesquisa.toLowerCase().trim())
   );
 
-
-  const carregarCardapio = async () => {
-    try {
-      console.log('renderizando cardapio ')
-      setCarregando(true)
-      limparItens()
-      await cardapioFirestore.recuperarCardapio().then((dados) => {
-        if (dados != undefined) {
-          setProdutosCardapio(dados)
-        }
-      })
-      setCarregando(false)
-    } catch (error) {
-      setCarregando(false)
-      Alert.alert('Erro ao carregar o cardápio', `${error}`)      
-    }
-  }
-
   useEffect(() => {
-    console.log('entrando no useEffec')
-    carregarCardapio()
+    limparItens()
+    if (!cardapio) carregarCardapio();
   }, [])
 
   return (
@@ -104,25 +86,25 @@ export const Cardapio: React.FC<Props> = ({ route }) => {
           </View>
 
           <View style={{ height: '70%' }}>
-            {(carregando)?
-            <Carregando />
-            :
-            <FlatList
-              keyExtractor={(item) => item.id_produto ?? item.descricao}
-              data={produtosFiltrados}
-              renderItem={({ item }) => (
-                <ItemCardapio
-                  objeto={item}
-                  abrirModalObs={(produto) => {
-                    setItemSelecionado(produto);
-                    setMostrarModalObs(true);
-                  }}
-                />
-              )}
-              numColumns={1}
-              contentContainerStyle={{ gap: 8 }}
-            />
-          }
+            {(carregando) ?
+              <Carregando />
+              :
+              <FlatList
+                keyExtractor={(item) => item.id_produto ?? item.descricao}
+                data={produtosFiltrados}
+                renderItem={({ item }) => (
+                  <ItemCardapio
+                    objeto={item}
+                    abrirModalObs={(produto) => {
+                      setItemSelecionado(produto);
+                      setMostrarModalObs(true);
+                    }}
+                  />
+                )}
+                numColumns={1}
+                contentContainerStyle={{ gap: 8 }}
+              />
+            }
           </View>
 
           <View style={styles.btnsView}>
@@ -143,7 +125,7 @@ export const Cardapio: React.FC<Props> = ({ route }) => {
               }}
               badgeNumber={itensPedido.length}
               badgeText={(itensPedido.length > 1) ? 'adicionados' : 'adicionado'}
-              icone={<Ionicons name="receipt" size={20} color="white" />}
+              icone={<Ionicons name="cart-sharp" size={22} color="white" />}
               flex
             />
           </View>
@@ -236,10 +218,11 @@ const ModalConfirmacao: React.FC<ModalConfirmacaoProps> = ({ visible, fechar, id
           >Confirmar</Button> */}
 
           <Botao
-            titulo="Confirmar"
+            titulo="Enviar pedido"
             disabled={isCarregando}
             cor={colors.azul_principal}
             onPress={adicionarAoPedido}
+            icone={<FontAwesome name="send" size={20} color="white" />}
           />
         </Card>
       </Modal>
@@ -275,6 +258,7 @@ const ModalObservacao: React.FC<ModalObservacaoProps> = ({ visible, fechar, prod
           </Text>
 
           <Input
+            style={{ marginBottom: 15 }}
             label="Observações"
             placeholder="Digite aqui..."
             value={observacao}
@@ -325,7 +309,7 @@ const styles = StyleSheet.create({
     // gap: '6%'
   },
   containerModal: {
-    minHeight: 192,
+    minHeight: 192
   },
   backdrop: {
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
